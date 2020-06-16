@@ -14,6 +14,10 @@
 #if defined(_WIN32) || defined(__CYGWIN__)
   #define DLLEXPORT __declspec(dllexport)
   #define STDCALL __stdcall
+#elif __GNUC__
+  #define DLLEXPORT [[gnu::visibility("default")]]
+  #define STDCALL
+  #define INT8 char
 #else
   #define DLLEXPORT
   #define STDCALL
