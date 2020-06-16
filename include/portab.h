@@ -63,7 +63,7 @@
 // Use to indicate a variable is being intentionally not referred to (which
 // usually generates a compiler warning)
 #ifndef UNUSED
-  #define UNUSED(x) ((void)(true ? 0 : ((x), void(), 0)))
+  #define UNUSED(x) ((void)x)
 #endif
 
 #endif
