@@ -1275,7 +1275,7 @@ int STDCALL SidesPar(
 {
   parResultsMaster parm[2];
   int res, i, k;
-  char buff[4];
+  char buff[12];
 
   res = SidesParBin(tablep, parm, vulnerable);
 
