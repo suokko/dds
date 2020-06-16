@@ -223,11 +223,12 @@ void System::GetHardware(
 #endif
 
 #ifdef __linux__
-  // The code for linux was suggested by Antony Lee.
-  FILE * fifo = popen(
-    "free -k | tail -n+3 | head -n1 | awk '{print $NF}'", "r");
-  int ignore = fscanf(fifo, "%llu", &kilobytesFree);
-  fclose(fifo);
+  auto page_size = sysconf(_SC_PAGESIZE);
+  auto pages = sysconf(_SC_PHYS_PAGES);
+  kilobytesFree = pages /= 1024;
+  kilobytesFree *= page_size;
+  unsigned long long system = 500'000;
+  kilobytesFree = std::max(kilobytesFree - system, std::min(kilobytesFree, system));
 
   ncores = sysconf(_SC_NPROCESSORS_ONLN);
   return;
