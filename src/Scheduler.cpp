@@ -207,7 +207,9 @@ void Scheduler::MakeGroups(const boards& bds)
     hands[b].first = dl->first;
     hands[b].strain = strain;
     hands[b].fanout = Scheduler::Fanout(* dl);
-    // hands[b].strength = Scheduler::Strength(* dl);
+#ifdef DDS_SCHEDULER
+    hands[b].strength = Scheduler::Strength(* dl);
+#endif
 
     lp = &list[strain][key];
 

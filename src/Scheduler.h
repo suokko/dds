@@ -77,11 +77,13 @@ class Scheduler
       int strain;
       int repeatNo;
       int depth;
-      int strength;
       int fanout;
-      int thread;
       int selectFlag;
+#ifdef DDS_SCHEDULER
+      int strength;
+      int thread;
       int time;
+#endif
     };
 
     handType hands[MAXNOOFBOARDS];
