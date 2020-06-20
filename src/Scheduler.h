@@ -90,7 +90,6 @@ class Scheduler
 
     groupType group[MAXNOOFBOARDS];
     int numGroups;
-    int extraGroups;
     int numHands;
 
     atomic<int> currGroup;

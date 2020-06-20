@@ -95,7 +95,6 @@ void Scheduler::Reset()
     hands[b].next = -1;
 
   numGroups = 0;
-  extraGroups = 0;
 
   // One extra for NT, one extra for splitting collisions.
   for (int strain = 0; strain < DDS_SUITS + 2; strain++)
@@ -240,6 +239,7 @@ void Scheduler::FinetuneGroups()
   listType * lp;
   int strain, key, b1, b2;
   int numGroupsOrig = numGroups;
+  int extraGroups = 0;
 
   for (int g = 0; g < numGroupsOrig; g++)
   {
