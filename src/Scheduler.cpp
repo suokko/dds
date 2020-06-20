@@ -18,7 +18,6 @@
 
 Scheduler::Scheduler()
 {
-  numThreads = 0;
   numHands = 0;
 
   Scheduler::InitHighCards();
@@ -73,7 +72,7 @@ void Scheduler::InitTimes()
   timeDepth.Init("Trace depth", 60);
   timeStrength.Init("Evenness", 60);
   timeFanout.Init("Fanout", 100);
-  timeThread.Init("Threads", numThreads);
+  timeThread.Init("Threads", threadGroup.size());
 
   timeGroupActualStrain.Init("Group actual suit/NT", 2);
   timeGroupPredStrain.Init("Group predicted suit/NT", 2);
@@ -103,11 +102,8 @@ void Scheduler::Reset()
     for (int key = 0; key < HASH_MAX; key++)
       list[strain][key].first = -1;
 
-  for (unsigned t = 0; t < static_cast<unsigned>(numThreads); t++)
-  {
-    threadGroup[t] = -1;
-    threadCurrGroup[t] = -1;
-  }
+  std::fill(std::begin(threadGroup), std::end(threadGroup), -1);
+  std::fill(std::begin(threadCurrGroup), std::end(threadCurrGroup), -1);
 
   currGroup = -1;
 }
@@ -116,18 +112,17 @@ void Scheduler::Reset()
 void Scheduler::RegisterThreads(
   const int n)
 {
-  if (n == numThreads)
-    return;
-  numThreads = n;
-
   const unsigned nu = static_cast<unsigned>(n);
+  if (nu == threadGroup.size())
+    return;
+
   threadGroup.resize(nu);
   threadCurrGroup.resize(nu);
   threadToHand.resize(nu);
 
 #ifdef DDS_SCHEDULER
-  timeThread.Init("Threads", numThreads);
-  timersThread.resize(numThreads);
+  timeThread.Init("Threads", nu);
+  timersThread.resize(nu);
 #endif
 }
 

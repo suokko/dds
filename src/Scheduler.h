@@ -101,7 +101,6 @@ class Scheduler
     vector<int> threadCurrGroup;
     vector<int> threadToHand;
 
-    int numThreads;
     int numHands;
 
     vector<int> highCards;
