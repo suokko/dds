@@ -64,7 +64,6 @@ unsigned char cardHand[DDS_HANDS] =
 // memory reasons, or all be int's for performance reasons.
 
 int highestRank[8192];
-int lowestRank[8192];
 int counttable[8192];
 char relRank[8192][15];
 unsigned short int winRanks[8192][14];
@@ -187,7 +186,6 @@ void InitConstants()
   // suit represented by aggr. The absolute rank is 2 .. 14.
   // Similarly for lowestRank.
   highestRank[0] = 0;
-  lowestRank [0] = 0;
   for (int aggr = 1; aggr < 8192; aggr++)
   {
     for (int r = 14; r >= 2; r--)
@@ -195,14 +193,6 @@ void InitConstants()
       if (aggr & bitMapRank[r])
       {
         highestRank[aggr] = r;
-        break;
-      }
-    }
-    for (int r = 2; r <= 14; r++)
-    {
-      if (aggr & bitMapRank[r])
-      {
-        lowestRank[aggr] = r;
         break;
       }
     }

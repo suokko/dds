@@ -12,7 +12,9 @@
 
 #include "portab.h"
 #include "dll.h"
+#include "bit.h"
 
+#include <limits>
 
 #if defined(DDS_MEMORY_LEAKS) && defined(_MSC_VER)
   #define DDS_MEMORY_LEAKS_WIN32
@@ -56,7 +58,12 @@ extern unsigned char cardHand[DDS_HANDS];
 
 // These five together take up 440 KB
 extern int highestRank[8192];
-extern int lowestRank[8192];
+extern struct LowestRank {
+  using index_type = unsigned short;
+  int operator[](index_type suit) const {
+    return countr_zero(suit) + 2;
+  }
+} lowestRank;
 extern int counttable[8192];
 extern char relRank[8192][15];
 extern unsigned short int winRanks[8192][14];

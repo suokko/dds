@@ -9,6 +9,7 @@ set(DDS_SRC
     ABsearch.h
     ABstats.cpp
     ABstats.h
+    bit.h
     CalcTables.cpp
     CalcTables.h
     dds.cpp
