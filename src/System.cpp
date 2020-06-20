@@ -138,19 +138,19 @@ void System::Reset()
       break;
     }
   }
-  
+
   RunPtrList.resize(DDS_SYSTEM_THREAD_SIZE);
-  RunPtrList[DDS_SYSTEM_THREAD_BASIC] = &System::RunThreadsBasic; 
-  RunPtrList[DDS_SYSTEM_THREAD_WINAPI] = &System::RunThreadsWinAPI; 
-  RunPtrList[DDS_SYSTEM_THREAD_OPENMP] = &System::RunThreadsOpenMP; 
-  RunPtrList[DDS_SYSTEM_THREAD_GCD] = &System::RunThreadsGCD; 
-  RunPtrList[DDS_SYSTEM_THREAD_BOOST] = &System::RunThreadsBoost; 
-  RunPtrList[DDS_SYSTEM_THREAD_STL] = &System::RunThreadsSTL; 
-  RunPtrList[DDS_SYSTEM_THREAD_TBB] = &System::RunThreadsTBB; 
-  RunPtrList[DDS_SYSTEM_THREAD_STLIMPL] = 
-    &System::RunThreadsSTLIMPL; 
-  RunPtrList[DDS_SYSTEM_THREAD_PPLIMPL] = 
-    &System::RunThreadsPPLIMPL; 
+  RunPtrList[DDS_SYSTEM_THREAD_BASIC] = &System::RunThreadsBasic;
+  RunPtrList[DDS_SYSTEM_THREAD_WINAPI] = &System::RunThreadsWinAPI;
+  RunPtrList[DDS_SYSTEM_THREAD_OPENMP] = &System::RunThreadsOpenMP;
+  RunPtrList[DDS_SYSTEM_THREAD_GCD] = &System::RunThreadsGCD;
+  RunPtrList[DDS_SYSTEM_THREAD_BOOST] = &System::RunThreadsBoost;
+  RunPtrList[DDS_SYSTEM_THREAD_STL] = &System::RunThreadsSTL;
+  RunPtrList[DDS_SYSTEM_THREAD_TBB] = &System::RunThreadsTBB;
+  RunPtrList[DDS_SYSTEM_THREAD_STLIMPL] =
+    &System::RunThreadsSTLIMPL;
+  RunPtrList[DDS_SYSTEM_THREAD_PPLIMPL] =
+    &System::RunThreadsPPLIMPL;
 
   CallbackSimpleList.resize(DDS_RUN_SIZE);
   CallbackSimpleList[DDS_RUN_SOLVE] = SolveChunkCommon;
@@ -200,11 +200,11 @@ void System::GetHardware(
 #ifdef __APPLE__
   // The code for Mac OS X was suggested by Matthew Kidd.
 
-  // This is physical memory, rather than "free" memory as below 
-  // for Linux.  Always leave 0.5 GB for the OS and other stuff. 
-  // It would be better to find free memory (how?) but in practice 
-  // the number of cores rather than free memory is almost certainly 
-  // the limit for Macs which have  standardized hardware (whereas 
+  // This is physical memory, rather than "free" memory as below
+  // for Linux.  Always leave 0.5 GB for the OS and other stuff.
+  // It would be better to find free memory (how?) but in practice
+  // the number of cores rather than free memory is almost certainly
+  // the limit for Macs which have  standardized hardware (whereas
   // say a 32 core Linux server is hardly unusual).
   FILE * fifo = popen("sysctl -n hw.memsize", "r");
   fscanf(fifo, "%lld", &kilobytesFree);
@@ -221,12 +221,13 @@ void System::GetHardware(
 #endif
 
 #ifdef __linux__
-  auto page_size = sysconf(_SC_PAGESIZE);
-  auto pages = sysconf(_SC_PHYS_PAGES);
-  kilobytesFree = pages /= 1024;
-  kilobytesFree *= page_size;
-  unsigned long long system = 500000;
-  kilobytesFree = std::max(kilobytesFree - system, std::min(kilobytesFree, system));
+  // Use half of the physical memory
+  unsigned long pages = sysconf (_SC_PHYS_PAGES);
+  unsigned long pagesize = sysconf (_SC_PAGESIZE);
+  if (pages > 0 && pagesize > 0)
+    kilobytesFree = static_cast<unsigned long long>(pages * (pagesize / (1024 * 2)));
+  else
+    kilobytesFree = 1024 * 1024; // guess 1GB
 
   ncores = sysconf(_SC_NPROCESSORS_ONLN);
   return;
@@ -606,7 +607,7 @@ string System::GetVersion(
   minor = (DDS_VERSION - major * 10000) / 100;
   patch = DDS_VERSION % 100;
 
-  string st = to_string(major) + "." + to_string(minor) + 
+  string st = to_string(major) + "." + to_string(minor) +
     "." + to_string(patch);
   return st;
 }
@@ -625,7 +626,7 @@ string System::GetSystem(int& sys) const
 #else
   sys = 0;
 #endif
-  
+
   return DDS_SYSTEM_PLATFORM[static_cast<unsigned>(sys)];
 }
 
@@ -656,7 +657,7 @@ string System::GetBits(int& bits) const
 #ifdef _MSC_VER
   #pragma warning(pop)
 #endif
-  
+
   return st;
 }
 
@@ -777,7 +778,7 @@ string System::str(DDSInfo * info) const
   ss << left << setw(17) << "Memory max (MB)" <<
     setw(16) << right << sysMem_MB << "\n";
 
-  const string stm = to_string(THREADMEM_SMALL_DEF_MB) + "-" + 
+  const string stm = to_string(THREADMEM_SMALL_DEF_MB) + "-" +
     to_string(THREADMEM_SMALL_MAX_MB) + " / " +
     to_string(THREADMEM_LARGE_DEF_MB) + "-" +
     to_string(THREADMEM_LARGE_MAX_MB);
