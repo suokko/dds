@@ -457,23 +457,21 @@ int System::RunThreadsBoost()
 int System::RunThreadsSTL()
 {
 #ifdef DDS_THREADS_STL
-  vector<thread *> threads;
+  vector<thread> threads;
 
   vector<int> uniques;
   vector<int> crossrefs;
   (* CallbackDuplList[runCat])(* bop, uniques, crossrefs);
 
   const unsigned nu = static_cast<unsigned>(numThreads);
-  threads.resize(nu);
+  threads.reserve(nu);
+  for (unsigned k = 1; k < nu; k++)
+    threads.emplace_back(fptr, k);
 
-  for (unsigned k = 0; k < nu; k++)
-    threads[k] = new thread(fptr, k);
+  fptr(0);
 
-  for (unsigned k = 0; k < nu; k++)
-  {
-    threads[k]->join();
-    delete threads[k];
-  }
+  for (auto& t: threads)
+    t.join();
 #endif
 
   return RETURN_NO_FAULT;
