@@ -99,7 +99,7 @@ struct ThreadData
 
 #ifdef DDS_TT_STATS
   File fileTTstats;
-#endif 
+#endif
 
 #ifdef DDS_TIMING
   TimerList timerList;
@@ -118,19 +118,12 @@ class Memory
   private:
 
     vector<ThreadData> memory;
-    unsigned nThreads;
 
     vector<string> threadSizes;
 
   public:
 
     Memory();
-
-    ~Memory();
-
-    void Reset();
-
-    void ResetThread(const unsigned thrId);
 
     void ReturnThread(const unsigned thrId);
 
@@ -140,13 +133,11 @@ class Memory
       const int memDefault_MB,
       const int memMaximum_MB);
 
-    int NumThreads() const;
+    unsigned NumThreads() const;
 
     ThreadData * GetPtr(const unsigned thrId);
 
     double MemoryInUseMB(const unsigned thrId) const;
-
-    void ReturnAllMemory();
 
     string ThreadSize(const unsigned thrId) const;
 };

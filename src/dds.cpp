@@ -48,13 +48,13 @@ extern "C" BOOL APIENTRY DllMain(
 
 void DDSInitialize(), DDSFinalize();
 
-void DDSInitialize(void) 
+void DDSInitialize(void)
 {
   SetMaxThreads(0);
 }
 
 
-void DDSFinalize(void) 
+void DDSFinalize(void)
 {
 }
 
