@@ -11,7 +11,6 @@
 #ifndef DDS_DLL_H
 #define DDS_DLL_H
 
-#include <stdbool.h>
 #include "dds_export.h"
 
 #if defined(_WIN32) || defined(__CYGWIN__)
@@ -24,6 +23,7 @@
   #define EXTERN_C extern "C"
 #else
   #define EXTERN_C
+  #include <stdbool.h> // make "bool" available
 #endif
 
 /* Version 2.9.0. Allowing for 2 digit minor versions */
