@@ -52,7 +52,7 @@ void loop_solve(
 
     timer.start(count);
     int ret;
-    if ((ret = SolveAllChunks(bop, solvedbdp, 1)) != RETURN_NO_FAULT)
+    if ((ret = SolveAllBoards(bop, solvedbdp)) != RETURN_NO_FAULT)
     {
       cout << "loop_solve: i " << i << ", return " << ret << "\n";
       exit(EXIT_FAILURE);

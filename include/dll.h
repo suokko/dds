@@ -443,17 +443,17 @@ EXTERN_C DLLEXPORT int STDCALL SolveAllBoardsBin(
   struct boards * bop,
   struct solvedBoards * solvedp);
 
-EXTERN_C DLLEXPORT int STDCALL SolveAllChunks(
+EXTERN_C DLLDEPRECATED DLLEXPORT int STDCALL SolveAllChunks(
   struct boardsPBN * bop,
   struct solvedBoards * solvedp,
   int chunkSize);
 
-EXTERN_C DLLEXPORT int STDCALL SolveAllChunksBin(
+EXTERN_C DLLDEPRECATED DLLEXPORT int STDCALL SolveAllChunksBin(
   struct boards * bop,
   struct solvedBoards * solvedp,
   int chunkSize);
 
-EXTERN_C DLLEXPORT int STDCALL SolveAllChunksPBN(
+EXTERN_C DLLDEPRECATED DLLEXPORT int STDCALL SolveAllChunksPBN(
   struct boardsPBN * bop,
   struct solvedBoards * solvedp,
   int chunkSize);
