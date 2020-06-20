@@ -89,19 +89,15 @@ class Scheduler
     groupType group[MAXNOOFBOARDS];
     int numGroups;
     int extraGroups;
+    int numHands;
 
     atomic<int> currGroup;
 
     listType list[DDS_SUITS + 2][HASH_MAX];
 
-    sortType sortList[MAXNOOFBOARDS];
-    int sortLen;
-
     vector<int> threadGroup;
     vector<int> threadCurrGroup;
     vector<int> threadToHand;
-
-    int numHands;
 
     vector<int> highCards;
 

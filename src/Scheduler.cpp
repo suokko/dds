@@ -7,7 +7,7 @@
    See LICENSE and README.
 */
 
-
+#include <algorithm>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -297,7 +297,8 @@ void Scheduler::FinetuneGroups()
       // a different hand.
 
       sortType st;
-      sortLen = lp->length;
+      sortType sortList[MAXNOOFBOARDS];
+      int sortLen = lp->length;
       int index = lp->first;
 
       for (int i = 0; i < sortLen; i++)
