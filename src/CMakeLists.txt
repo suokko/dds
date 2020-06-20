@@ -176,13 +176,13 @@ endif ()
 
 # Add TBB threading if configure found the library
 if (TBB_FOUND)
-    target_compile_definitions(dds PRIVATE DDS_THREAD_TBB)
-    target_link_libraries(dds PRIVATE TBB::thread)
+    target_compile_definitions(dds PRIVATE DDS_THREADS_TBB)
+    target_link_libraries(dds PRIVATE TBB::tbb)
 endif ()
 
 # Add PPL threading if configure found the header
 if (PPL_FOUND)
-    target_compile_definitions(dds PRIVATE DDS_THREAD_PPLIMPL)
+    target_compile_definitions(dds PRIVATE DDS_THREADS_PPLIMPL)
 endif ()
 
 # Always enable stl threads as c++11 is required

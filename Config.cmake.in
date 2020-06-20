@@ -14,7 +14,7 @@ if (@Boost_FOUND@ AND NOT @BUILD_SHARED_LIBRARY@)
 endif ()
 
 if (@TBB_FOUND@ AND NOT @BUILD_SHARED_LIBRARY@)
-    find_package(TBB COMPONENTS thread REQUIRED)
+    find_package(TBB COMPONENTS tbb REQUIRED)
 endif ()
 
 if (@OpenMP_FOUND@ AND NOT @BUILD_SHARED_LIBRARY@)
