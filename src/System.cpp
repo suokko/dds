@@ -227,7 +227,7 @@ void System::GetHardware(
   auto pages = sysconf(_SC_PHYS_PAGES);
   kilobytesFree = pages /= 1024;
   kilobytesFree *= page_size;
-  unsigned long long system = 500'000;
+  unsigned long long system = 500000;
   kilobytesFree = std::max(kilobytesFree - system, std::min(kilobytesFree, system));
 
   ncores = sysconf(_SC_NPROCESSORS_ONLN);
