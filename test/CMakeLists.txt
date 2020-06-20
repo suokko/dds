@@ -49,6 +49,36 @@ set(TEST_DATA
     thomas2
     )
 
+set(THREAD_MODEL default none stl)
+
+if (WIN32)
+    list(APPEND THREAD_MODEL winapi)
+endif ()
+
+if (OpenMP_FOUND)
+    list(APPEND THREAD_MODEL openmp)
+endif ()
+
+if (APPLE)
+    list(APPEND THREAD_MODEL gcd)
+endif ()
+
+if (Boost_FOUND)
+    list(APPEND THREAD_MODEL boost)
+endif ()
+
+if (TBB_FOUND)
+    list(APPEND THREAD_MODEL tbb)
+endif ()
+
+if (CMAKE_CXX_STANDARD GREATER 14)
+    list(APPEND THREAD_MODEL stlimpl)
+endif ()
+
+if (PPL_FOUND)
+    list(APPEND THREAD_MODEL pplimpl)
+endif ()
+
 # Avoid running test combinations which don't work
 set(NO_RUN_solve "sol.*")
 set(NO_RUN_play "sol.*")
@@ -59,16 +89,18 @@ foreach (TV ${TEST_VARIANTS})
     foreach (I ${TEST_DATA})
         if (NOT NO_RUN_${TV} OR NOT I MATCHES "${NO_RUN_${TV}}")
             set(ITXT "${PROJECT_SOURCE_DIR}/hands/${I}.txt")
-            add_test(NAME ${TV}_${I}
-                COMMAND ${CMAKE_COMMAND}
-                "-DDDS_DIR=$<TARGET_FILE_DIR:dds>"
-                "-DWIN32=${WIN32}"
-                "-DCMAKE_CROSSCOMPILING=${CMAKE_CROSSCOMPILING}"
-                "-DCMD=$<TARGET_FILE:dtest>;-s;${TV};-f;${ITXT}"
-                -P ${CMAKE_CURRENT_SOURCE_DIR}/test.cmake
-                )
-            set_tests_properties(${TV}_${I} PROPERTIES
-                LABELS "${TV};${I}")
+            foreach (TM ${THREAD_MODEL})
+                add_test(NAME ${TV}_${I}_${TM}
+                    COMMAND ${CMAKE_COMMAND}
+                    "-DDDS_DIR=$<TARGET_FILE_DIR:dds>"
+                    "-DWIN32=${WIN32}"
+                    "-DCMAKE_CROSSCOMPILING=${CMAKE_CROSSCOMPILING}"
+                    "-DCMD=$<TARGET_FILE:dtest>;-s;${TV};-f;${ITXT};-t;${TM}"
+                    -P ${CMAKE_CURRENT_SOURCE_DIR}/test.cmake
+                    )
+                set_tests_properties(${TV}_${I}_${TM} PROPERTIES
+                    LABELS "${TV};${I};${TM}")
+            endforeach ()
         endif ()
     endforeach ()
 endforeach ()
