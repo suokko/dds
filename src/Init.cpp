@@ -21,8 +21,6 @@
 System sysdep;
 Memory memory;
 Scheduler scheduler;
-ThreadMgr threadMgr;
-
 
 void InitConstants();
 
@@ -165,8 +163,6 @@ void STDCALL SetResources(
   if (noOfSmallThreads > 0)
     memory.Resize(static_cast<unsigned>(noOfThreads),
       DDS_TT_SMALL, THREADMEM_SMALL_DEF_MB, THREADMEM_SMALL_MAX_MB);
-
-  threadMgr.Reset(noOfThreads);
 
   InitDebugFiles();
 

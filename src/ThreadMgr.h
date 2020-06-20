@@ -11,6 +11,8 @@
 #define DDS_THREADMGR_H
 
 #include <vector>
+#include <mutex>
+#include <condition_variable>
 
 using namespace std;
 
@@ -19,22 +21,17 @@ class ThreadMgr
 {
   private:
 
-    vector<bool> realThreads;
-    vector<int> machineThreads;
-    unsigned numRealThreads;
-    unsigned numMachineThreads;
+    vector<unsigned> realThreads;
+    mutable std::mutex mtx;
+    std::condition_variable cv;
 
   public:
 
-    ThreadMgr();
+    ThreadMgr(const unsigned nThreads);
 
-    ~ThreadMgr();
+    unsigned Occupy();
 
-    void Reset(const int nThreads);
-
-    int Occupy(const int MachineThrId);
-
-    bool Release(const int MachineThrId);
+    void Release(const unsigned thrId);
 
     void Print(
       const string& fname,

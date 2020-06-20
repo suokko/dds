@@ -24,8 +24,6 @@
 
 extern Scheduler scheduler;
 extern Memory memory;
-extern ThreadMgr threadMgr;
-
 
 const vector<string> DDS_SYSTEM_PLATFORM =
 {
@@ -492,25 +490,16 @@ int System::RunThreadsSTLIMPL()
   static atomic<int> thrIdNext = 0;
   bool err = false;
 
-  threadMgr.Reset(numThreads);
+  ThreadMgr threadMgr(numThreads);
 
   for_each(std::execution::par, uniques.begin(), uniques.end(),
     [&](int &bno)
   {
-    thread_local int thrId = -1;
-    thread_local int realThrId;
-    if (thrId == -1)
-      thrId = thrIdNext++;
+    unsigned realThrId = threadMgr.Occupy();
 
-    realThrId = threadMgr.Occupy(thrId);
+    (* CallbackSingleList[runCat])(realThrId, bno);
 
-    if (realThrId == -1)
-      err = true;
-    else
-      (* CallbackSingleList[runCat])(realThrId, bno);
-
-    if (! threadMgr.Release(thrId))
-      err = true;
+    threadMgr.Release(realThrId);
   });
 
   if (err)
@@ -567,25 +556,16 @@ int System::RunThreadsPPLIMPL()
   static atomic<int> thrIdNext = 0;
   bool err = false, err2 = false;
 
-  threadMgr.Reset(numThreads);
+  ThreadMgr threadMgr(numThreads);
 
   Concurrency::parallel_for_each(uniques.begin(), uniques.end(),
     [&](int &bno)
   {
-    thread_local int thrId = -1;
-    thread_local int realThrId;
-    if (thrId == -1)
-      thrId = thrIdNext++;
+    unsigned realThrId = threadMgr.Occupy();
 
-    realThrId = threadMgr.Occupy(thrId);
+    (* CallbackSingleList[runCat])(realThrId, bno);
 
-    if (realThrId == -1)
-      err = true;
-    else
-      (* CallbackSingleList[runCat])(realThrId, bno);
-
-    if (! threadMgr.Release(thrId))
-      err2 = true;
+    threadMgr.Release(realThrId);
   });
 
   if (err)
