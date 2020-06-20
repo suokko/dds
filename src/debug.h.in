@@ -59,46 +59,47 @@
 */
 
 // If you want ALL the output files, this is easier
-// #define DDS_DEBUG_ALL
-
-#define DDS_DEBUG_SUFFIX ".txt"
+#cmakedefine DDS_DEBUG_ALL
+#cmakedefine DDS_DEBUG_SUFFIX "@DDS_DEBUG_SUFFIX@"
 
 // Enables data about each call to the top-level AB routine.
-// #define DDS_TOP_LEVEL
-#define DDS_TOP_LEVEL_PREFIX "toplevel"
+#cmakedefine DDS_TOP_LEVEL
+#cmakedefine DDS_TOP_LEVEL_PREFIX "@DDS_TOP_LEVEL_PREFIX@"
 
 // Enables AB statistics, node counts etc.
-// #define DDS_AB_STATS
-#define DDS_AB_STATS_PREFIX "ABstats"
+#cmakedefine DDS_AB_STATS
+#cmakedefine DDS_AB_STATS_PREFIX "@DDS_AB_STATS_PREFIX@"
 
 // Gives more detail, in combination with DDS_AB_STATS.
-// #define DDS_AB_DETAILS
+#cmakedefine DDS_AB_DETAILS
 
 // Gives information on nodes stored and retrieved from TT memory.
-// #define DDS_AB_HITS
-#define DDS_AB_HITS_RETRIEVED_PREFIX "retrieved"
-#define DDS_AB_HITS_STORED_PREFIX "stored"
+#cmakedefine DDS_AB_HITS
+#cmakedefine DDS_AB_HITS_RETRIEVED_PREFIX "@DDS_AB_HITS_RETRIEVED_PREFIX@"
+#cmakedefine DDS_AB_HITS_STORED_PREFIX "@DDS_AB_HITS_STORED_PREFIX@"
 
 // Gives statistics on the usage of TT memory.
-// #define DDS_TT_STATS
-#define DDS_TT_STATS_PREFIX "TTstats"
+#cmakedefine DDS_TT_STATS
+#cmakedefine DDS_TT_STATS_PREFIX "@DDS_TT_STATS_PREFIX@"
 
 // Enables timing of the AB search and related functions.
 // Makes an attempt to calculate exclusive times of functions.
-// #define DDS_TIMING
-#define DDS_TIMING_PREFIX "timer"
+#cmakedefine DDS_TIMING
+#cmakedefine DDS_TIMING_PREFIX "@DDS_TIMING_PREFIX@"
 
 // Enables statistics on move generation quality.
-// #define DDS_MOVES
-#define DDS_MOVES_PREFIX "movestats"
+#cmakedefine DDS_MOVES
+#cmakedefine DDS_MOVES_PREFIX "@DDS_MOVES_PREFIX@"
 
 // Enables timing in the scheduler.
-// #define DDS_SCHEDULER
-#define DDS_SCHEDULER_PREFIX "sched"
+#cmakedefine DDS_SCHEDULER
+#cmakedefine DDS_SCHEDULER_PREFIX "@DDS_SCHEDULER_PREFIX@"
 
 
 #ifdef DDS_DEBUG_ALL
-  #define DDS_TOP_LEVEL
+  #ifndef DDS_TOP_LEVEL
+    #define DDS_TOP_LEVEL
+  #endif
   #ifndef DDS_AB_STATS
     #define DDS_AB_STATS
   #endif
@@ -127,8 +128,7 @@
 
 
 // This debugging feature only works with Microsoft's compiler.
-// In fact, it doesn't seem to do anything right now :-).
-// #define DDS_MEMORY_LEAKS
+#cmakedefine DDS_MEMORY_LEAKS_WIN32
 
 
 #define COUNTER_SLOTS 200

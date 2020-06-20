@@ -7,50 +7,51 @@
    See LICENSE and README.
 */
 
+#include <dll.h>
+#include <hands_export.h>
 
 // General initialization of three hands to be used in examples.
+extern HANDS_EXPORT int trump[3];
+extern HANDS_EXPORT int first[3];
+extern HANDS_EXPORT int dealer[3];
+extern HANDS_EXPORT int vul[3];
 
-extern int trump[3];
-extern int first[3];
-extern int dealer[3];
-extern int vul[3];
+extern HANDS_EXPORT char PBN[3][80];
 
-extern char PBN[3][80];
+extern HANDS_EXPORT unsigned int holdings[3][4][4];
 
-extern unsigned int holdings[3][4][4];
+extern HANDS_EXPORT int playNo[3];
 
-extern int playNo[3];
-
-extern char play[3][106];
-extern int playSuit[3][52];
-extern int playRank[3][52];
-
-
-void PrintFut(char title[], futureTricks * fut);
-void equals_to_string(int equals, char * res);
-bool CompareFut(futureTricks * fut, int handno, int solutions);
-
-void SetTable(ddTableResults * table, int handno);
-bool CompareTable(ddTableResults * table, int handno);
-void PrintTable(ddTableResults * table);
-
-bool ComparePar(parResults * par, int handno);
-bool CompareDealerPar(parResultsDealer * par, int handno);
-void PrintPar(parResults * par);
-void PrintDealerPar(parResultsDealer * par);
-
-bool ComparePlay(solvedPlay * trace, int handno);
-void PrintBinPlay(playTraceBin * play, solvedPlay * solved);
-void PrintPBNPlay(playTracePBN * play, solvedPlay * solved);
+extern HANDS_EXPORT char play[3][106];
+extern HANDS_EXPORT int playSuit[3][52];
+extern HANDS_EXPORT int playRank[3][52];
 
 
-void PrintHand(char title[], 
+HANDS_EXPORT void PrintFut(char title[], futureTricks * fut);
+HANDS_EXPORT void equals_to_string(int equals, char * res);
+HANDS_EXPORT bool CompareFut(futureTricks * fut, int handno, int solutions);
+
+HANDS_EXPORT void SetTable(ddTableResults * table, int handno);
+HANDS_EXPORT bool CompareTable(ddTableResults * table, int handno);
+HANDS_EXPORT void PrintTable(ddTableResults * table);
+
+HANDS_EXPORT bool ComparePar(parResults * par, int handno);
+HANDS_EXPORT bool CompareDealerPar(parResultsDealer * par, int handno);
+HANDS_EXPORT void PrintPar(parResults * par);
+HANDS_EXPORT void PrintDealerPar(parResultsDealer * par);
+
+HANDS_EXPORT bool ComparePlay(solvedPlay * trace, int handno);
+HANDS_EXPORT void PrintBinPlay(playTraceBin * play, solvedPlay * solved);
+HANDS_EXPORT void PrintPBNPlay(playTracePBN * play, solvedPlay * solved);
+
+
+HANDS_EXPORT void PrintHand(char title[],
   unsigned int rankInSuit[DDS_HANDS][DDS_SUITS]);
 
-void PrintPBNHand(char title[], char remainCards[]);
+HANDS_EXPORT void PrintPBNHand(char title[], char remainCards[]);
 
-int ConvertPBN(char * dealBuff,
+HANDS_EXPORT int ConvertPBN(char * dealBuff,
   unsigned int remainCards[DDS_HANDS][DDS_SUITS]);
 
-int IsACard(char cardChar);
+HANDS_EXPORT int IsACard(char cardChar);
 

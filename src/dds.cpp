@@ -8,7 +8,7 @@
 */
 
 
-#include "../include/dll.h"
+#include "dds.h"
 #include "Init.h"
 
 #ifdef _MANAGED

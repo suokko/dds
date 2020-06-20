@@ -15,7 +15,6 @@
 #include <string>
 
 #include "dds.h"
-#include "../include/dll.h"
 
 using namespace std;
 
@@ -57,7 +56,6 @@ class Moves
     int leadHand;
     int leadSuit;
     int currHand;
-    int currSuit;
     int currTrick;
     int trump;
     int suit;

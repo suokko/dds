@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../include/dll.h"
+#include "dll.h"
 #include "hands.h"
 
 
@@ -27,7 +27,6 @@ int main()
   int target;
   int solutions;
   int mode;
-  int threadIndex = 0;
   int res;
   char line[80];
   bool match2,

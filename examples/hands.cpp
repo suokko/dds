@@ -13,7 +13,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../include/dll.h"
 #include "hands.h"
 
 #define SP 0

@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-#include "../include/dll.h"
+#include "dll.h"
 #include "testcommon.h"
 #include "args.h"
 #include "cst.h"
@@ -33,7 +33,5 @@ int main(int argc, char * argv[])
   GetDDSInfo(&info);
   cout << info.systemString << endl;
 
-  realMain(argc, argv);
-
-  exit(0);
+  return realMain(argc, argv);
 }

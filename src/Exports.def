@@ -1,4 +1,4 @@
-LIBRARY   dds
+LIBRARY   libdds
 EXPORTS
    SetMaxThreads
    SetMaxThreads@4 = SetMaxThreads

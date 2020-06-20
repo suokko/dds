@@ -14,7 +14,7 @@
 #include <string.h>
 #include <stdexcept>
 
-#include "../include/portab.h"
+#include "portab.h"
 #include "parse.h"
 
 using namespace std;
@@ -317,7 +317,6 @@ bool parse_FUT(
     return false;
   }
 
-  const int n = fut->cards;
   const unsigned nu = static_cast<unsigned>(fut->cards);
   for (unsigned c = 0; c < nu; c++)
     if (! get_int_element(list[c+2], fut->suit[c], "FUT suit"))

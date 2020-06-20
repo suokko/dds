@@ -1,0 +1,28 @@
+
+@PACKAGE_INIT@
+
+set(DDS_LIBTYPE @DDS_LIBTYPE@)
+
+# Find required dependencies if using dds is a static library
+
+if (@Threads_FOUND@ AND NOT @BUILD_SHARED_LIBRARY@)
+    find_package(Threads REQUIRED)
+endif ()
+
+if (@Boost_FOUND@ AND NOT @BUILD_SHARED_LIBRARY@)
+    find_package(Boost COMPONENTS thread REQUIRED)
+endif ()
+
+if (@TBB_FOUND@ AND NOT @BUILD_SHARED_LIBRARY@)
+    find_package(TBB COMPONENTS thread REQUIRED)
+endif ()
+
+if (@OpenMP_FOUND@ AND NOT @BUILD_SHARED_LIBRARY@)
+    find_package(OpenMP REQUIRED)
+endif ()
+
+if (@PPL_FOUND@ AND NOT @BUILD_SHARED_LIBRARY@)
+    find_package(PPL REQUIRED)
+endif ()
+
+include("${CMAKE_CURRENT_LIST_DIR}/DDSTargets.cmake")

@@ -21,7 +21,8 @@
 #endif
 
 
-const MGtype RegisterList[16] =
+#ifdef DDS_MOVES
+static const MGtype RegisterList[16] =
 {
   MG_NT0, MG_TRUMP0,
   MG_SIZE, MG_SIZE, // Unused
@@ -35,6 +36,7 @@ const MGtype RegisterList[16] =
   MG_COMB_NOTVOID3, MG_COMB_NOTVOID3,
   MG_NT_VOID3, MG_TRUMP_VOID3
 };
+#endif
 
 
 Moves::Moves()

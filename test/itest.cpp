@@ -12,7 +12,7 @@
 #include <iomanip>
 #include <cstdlib>
 
-#include "../include/dll.h"
+#include "dll.h"
 #include "testcommon.h"
 #include "args.h"
 #include "cst.h"
@@ -35,7 +35,7 @@ int main(int argc, char * argv[])
   GetDDSInfo(&info);
   cout << info.systemString << endl;
 
-  realMain(argc, argv);
+  int r = realMain(argc, argv);
 
 #ifdef DDS_SCHEDULER
   scheduler.PrintTiming();
@@ -43,6 +43,6 @@ int main(int argc, char * argv[])
 
   FreeMemory();
 
-  exit(0);
+  return r;
 }
 

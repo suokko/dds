@@ -55,7 +55,7 @@ void loop_solve(
     if ((ret = SolveAllChunks(bop, solvedbdp, 1)) != RETURN_NO_FAULT)
     {
       cout << "loop_solve: i " << i << ", return " << ret << "\n";
-      exit(0);
+      exit(EXIT_FAILURE);
     }
     timer.end();
 
@@ -74,6 +74,7 @@ void loop_solve(
       cout << "\n";
       print_FUT(fut_list[i+j]);
       cout << "\n";
+      exit(EXIT_FAILURE);
     }
   }
 
@@ -113,7 +114,7 @@ bool loop_calc(
         != RETURN_NO_FAULT)
     {
       cout << "loop_calc: i " << i << ", return " << ret << "\n";
-      exit(0);
+      exit(EXIT_FAILURE);
     }
     timer.end();
 
@@ -132,6 +133,7 @@ bool loop_calc(
       cout << "\n";
       print_TABLE(table_list[i + j]) ;
       cout << "\n";
+      exit(EXIT_FAILURE);
     }
   }
 
@@ -166,7 +168,7 @@ bool loop_par(
       {
         cout << "loop_par: i " << i << ", j " << j << ": " <<
           "return " << ret << "\n";
-        exit(0);
+        exit(EXIT_FAILURE);
       }
     }
 
@@ -178,6 +180,7 @@ bool loop_par(
     cout << "\n";
     print_PAR(par_list[i]);
     cout << "\n";
+    exit(EXIT_FAILURE);
   }
 
   return true;
@@ -208,7 +211,7 @@ bool loop_dealerpar(
       {
         cout << "loop_dealerpar: i " << i << ", j " << j << ": " <<
           "return " << ret << "\n";
-        exit(0);
+        exit(EXIT_FAILURE);
       }
     }
 
@@ -220,6 +223,7 @@ bool loop_dealerpar(
     cout << "\n";
     print_DEALERPAR(dealerpar_list[i]);
     cout << "\n";
+    exit(EXIT_FAILURE);
   }
   timer.end();
 
@@ -270,7 +274,7 @@ bool loop_play(
     {
       printf("loop_play i %i: Return %d\n", i, ret);
       cout << "loop_play: i " << i << ": " << "return " << ret << "\n";
-      exit(0);
+      exit(EXIT_FAILURE);
     }
     timer.end();
 
@@ -288,6 +292,7 @@ bool loop_play(
         "Difference\n\n";
       print_double_TRACE(solvedplp->solved[j], trace_list[i+j]);
       cout << "\n";
+      exit(EXIT_FAILURE);
     }
   }
 

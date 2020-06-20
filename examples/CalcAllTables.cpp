@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../include/dll.h"
+#include "dll.h"
 #include "hands.h"
 
 

@@ -7,132 +7,58 @@ know what you're doing and you'll figure it out :-).
 
 The first step is to compile the library.
 
-If you have trouble, read the Makefiles.  They all have the compiler
-warning levels set rather high, and they are set to fail even on
-warnings.  You can turn this off.  The Visual C++ version also
-requires a couple of tools that you may not have, but this too is
-easy to turn off.
+If you have trouble, read the CMakeLists.txt.  The compiler warning
+levels are set rather high, and they are set to fail even on
+warnings. You can modify warning flags with DDS_GCC_WARN or DDS_MSVC_WARN
+configuration options.
 
 If you want, the optional next step is to test the library.
 
-Generally speaking:
+Dependecies:
+* You need cmake (>= 3.12)
+* Compiler with C++ 11 support
 
-* Your paths and your system must be set up ahead of time.
-* You must have "make", or you will have to find a manual way
-  of compiling.
-* If your compiler does not have the name that we assume in 
-  the Makefile, then modify the Makefile.
+Optional dependencies:
+* Boost thread
+* Compiler supporting OpenMP
+* Compiler with C++ 17 support (cmake argument -DCMAKE_CXX_STANDARD=17 to use)
+* Intel Thread Building Blocks library
+
 
 Once you've tested the source, you'll need the library file, the
-dll.h include file from the include directory, and possibly other files
-such as dll.lib, depending on the exact system.  You don't need
-include/portab.h, although you're welcome to use it.  The library
-files needed are:
+dll.h and dds_export.h include file from the include directory, and
+possibly other files such as dll.lib, depending on the exact system.
+You don't need include/portab.h, although you're welcome to use it. The
+library files needed depending on build configuration:
 
-Microsoft Visual C++: dds.dll, dds.lib
-mingw and cygwin: dds.dll, dds.def
-Mac and linux: libdds.a or libdds.so depending on compilation
+Microsoft Visual C++: libdds.dll, libdds.lib or libdds.lib
+mingw and cygwin: libdds.dll or libdds.a
+Mac and linux: libdds.so* or libdds.a
 
+System level installation can be done with install target. You can select your
+preferred directory by modifying CMAKE_INSTALL_PREFIX configuration variable.
 
 General instructions
 ====================
 
-1. Go to the src directory.
+1. Make a new subdirectory and move to it (e.g. `mkdir build && cd build`).
 
-2. Copy the right Makefile_... from the Makefiles sub-directory
-to the src directory and call it Makefile, see below. (Or use make -f)
-So for example "cp Makefiles/Makefile_Visual Makefile".
-See "System-specific data" below.
+2. Configure the project (e.g. `cmake ..` or `cmake -G Xcode ..`)
 
-3. Check the configuration section and make any changes you need.
-- Section (1) has to do with paths for certain multi-threading systems
-  which you may or may not want/have.  If you set a certain compiler
-  flag, it is your own responsibility that you have the corresponding
-  threading system available -- otherwise the code will not compile.
-- Section (2) sets the threading systems with which you want to compile 
-  the DLL.  Note that you can have as many as you like (see below).  
-- Section (3) has to do with certain debugging flags etc. which you 
-  normally shouldn't set.
+3. You can modify configuration using CMAKE GUI (e.g. `ccmake ..`)
 
-3. Check the "Often OK" section, in particular the name of the
-compiler you want to use.
+4. Compile the project (e.g. `make`)
 
-4. If you're on Windows and you don't have the "windres" and 
-"cvtres" programs, then you can also manage without.  These are 
-just used for getting version information into the DLL.  Delete 
-the corresponding lines.
+5. Optionally run tests (e.g. `make check`)
 
-6. "make clean" (not necessary if you're starting clean).
+6. Install files (e.g. `make install`)
 
-7. There is a "make depend" target, but DO NOT USE IT.  The Makefile
-is set up to read the dependencies from Makefiles/depends_*.txt.
-
-8. "make" (produces dds.dll on Windows, libdds.a or libdds.so on 
-Linux and Mac).
-
-9. "make install" (if you want to run tests; this is only a
-local install to ../test and ../examples, not a system-wide one).
-
-
-System-specific data
-====================
-
-Microsoft Visual C++
---------------------
-Makefile: Makefile_Visual
-Compiler: cl
-
-If you don't have a Cygwin-like set-up with access to commands
-such as "cp", see the last lines of that Makefile.
-
-
-Windows Mingw
--------------
-Makefile: Makefile_mingw
-Compiler: g++
-
-
-Windows Cygwin
---------------
-Makefile: Makefile_cygwin
-Compiler: g++
-
-
-Linux (static library .a)
------
-Makefile: Makefile_linux_static
-Compiler: g++
-
-
-Linux (dynamic library .so)
------
-Makefile: Makefile_linux_shared
-Compiler: g++
-
-
-MacOS clang (static library .a)
------
-Makefile: Makefile_Mac_clang_static
-Compiler: g++
-
-
-MacOS clang (shared library .a)
------
-Makefile: Makefile_Mac_clang_static
-Compiler: g++
-
-
-MacOS GNU g++ (static library .a)
------
-Makefile: Makefile_Mac_clang_static
-Compiler: gcc-4.9
-
-
-MacOS GNU g++ (shared library .a)
------
-Makefile: Makefile_Mac_clang_static
-Compiler: gcc-4.9
-
+You can also install some of components. Example is minimum install to be able
+to compile and run applications using libdds.
+```
+cmake -DCMAKE_INSTALL_COMPONENT=Runtime -P cmake_install.cmake
+cmake -DCMAKE_INSTALL_COMPONENT=Development -P cmake_install.cmake
+```
 
 Multi-threading
 ===============
@@ -168,12 +94,13 @@ this more efficiently.
 Testing
 =======
 
-The step "make install" above should have put the library file
-in ../test.
+Build system offers targets `check`,  `check_master` and `check_slow`. These
+targets can be triggered to run predefined manual test suit.
 
-test
-----
-In the test directory you can compile the dtest program.
+Running tests manually
+----------------------
+
+You can compile the dtest program (e.g. `make dtest`).
 This program tests five main modes of DDS:
 
 * solve, the solution of a hand for a given declarer and strain.
@@ -185,11 +112,6 @@ This program tests five main modes of DDS:
 The program can use a number of pre-defined input files in the
 ../hands directory.
 
-To compile the program, you follow the same steps as for the library,
-except that you don't do a "make install".  So you copy the right
-Makefile from Makefiles (e.g. "cp Makefiles/Makefile_Visual Makefile"),
-then type "make".
-
 You should now have a program called "dtest" or "dtest.exe".  Let us 
 assume dtest.exe.  Let us also assume that your system is set up
 in such a way that your path does not include the current working
@@ -197,12 +119,12 @@ directory.
 
 You can invoke the program as
 
-./dtest.exe
+./test/dtest.exe
 
 which should just give a brief usage message.  If that works, then
 you can invoke the program like this, for example:
 
-./dtest.exe -f ../hands/list100.txt -s solve -n 4 -m 1000
+./test/dtest.exe -f ../hands/list100.txt -s solve -n 4 -m 1000
 
 The number of threads is optional.  If it is not supplied, DDS
 figures one out itself.  If it is supplied, then it is passed to

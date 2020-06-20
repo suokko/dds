@@ -326,7 +326,7 @@ void ReadArgs(
   {
     cout << "Error while parsing option '" << argv[nextToken] << "'\n";
     cout << "Invoke the program without arguments for help" << endl;
-    exit(0);
+    exit(EXIT_FAILURE);
   }
 }
 

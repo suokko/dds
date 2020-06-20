@@ -12,8 +12,8 @@
 #include <iomanip>
 #include <vector>
 
-#include "../include/dll.h"
-#include "../include/portab.h"
+#include "dll.h"
+#include "portab.h"
 
 #include "testcommon.h"
 #include "TestTimer.h"
@@ -92,13 +92,13 @@ int realMain(int argc, char * argv[])
         &play_list, &trace_list) == false)
   {
     cout << "read_file failed\n";
-    exit(0);
+    exit(EXIT_FAILURE);
   }
 
   if (GIBmode && options.solver != DTEST_SOLVER_CALC)
   {
     cout << "GIB file only works works with calc\n";
-    exit(0);
+    exit(EXIT_FAILURE);
   }
 
   timer.reset();
@@ -139,7 +139,7 @@ int realMain(int argc, char * argv[])
   {
     cout << "Unknown type " << 
       static_cast<unsigned>(options.solver) << "\n";
-    exit(0);
+    exit(EXIT_FAILURE);
   }
 
   timer.printHands();
@@ -154,7 +154,7 @@ int realMain(int argc, char * argv[])
   free(play_list);
   free(trace_list);
 
-  return (0);
+  return EXIT_SUCCESS;
 }
 
 

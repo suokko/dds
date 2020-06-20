@@ -1,20 +1,9 @@
 !.gitignore
-*.o
-*.a
-*.so
-*.dll
-*.obj
-*.def
-src/[Mm]akefile
-test/[Mm]akefile
-examples/[Mm]akefile
-test/dtest
-test/itest
 
-*.exe
+.build*/
+build*/
+
 *.swp
 *.bak
+*~
 
-*.exp
-*.lib
-*.res
