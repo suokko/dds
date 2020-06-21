@@ -81,6 +81,21 @@ endif ()
 # Add dds target with all sources
 add_library(dds ${DDS_LIBTYPE} ${DDS_SRC} ${DDS_PUBLIC_HEADERS})
 
+# Rename Mac library to so like it used to be with Makefiles
+if (APPLE AND NOT DDS_LIBRARY_SUFFIX)
+    set(DDS_LIBRARY_SUFFIX ".so")
+    message(STATUS "Using library suffix '.so' for Mac. \
+You can change the suffix to '.dylib' with DDS_LIBRARY_SUFFIX configuration \
+variable.")
+endif ()
+
+set(DDS_LIBRARY_SUFFIX ${DDS_LIBRARY_SUFFIX} CACHE STRING
+    "Configuration option to override system default library suffix.")
+
+if (DDS_LIBRARY_SUFFIX)
+    set_target_properties(dds PROPERTIES SUFFIX ${DDS_LIBRARY_SUFFIX})
+endif ()
+
 # Helper function to setup user debug configuration objects
 function(user_config_define NAME DOCSTR)
     set(PREFIX)
