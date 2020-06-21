@@ -2,7 +2,7 @@
 # Very simple find for header only
 
 find_path(GCD_INCLUDE_DIR dispatch/dispatch.h
-    HINTS $ENV{PPLDIR}
+    HINTS $ENV{GCDDIR}
     PATH_SUFFIXES include
     DOC "The directory of Parallel Patterns Library headers"
     )
