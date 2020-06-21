@@ -1,6 +1,8 @@
 Release Notes DDS 2.9.1
 -----------------------
 - Added cmake build system (see INSTALL how to use)
+- Added SolveAllBoardsBin
+- Fixed a potential crash when exiting process using the library
 
 Release Notes DDS 2.9.0
 -----------------------
