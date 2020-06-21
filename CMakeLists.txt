@@ -116,6 +116,7 @@ find_package(Boost COMPONENTS thread)
 find_package(OpenMP)
 find_package(TBB COMPONENTS tbb)
 find_package(PPL)
+find_package(GCD)
 
 # Helper variable to select user configured library type
 if (BUILD_SHARED_LIBRARY)

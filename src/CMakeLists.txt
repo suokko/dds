@@ -168,10 +168,10 @@ if (WIN32)
     target_compile_definitions(dds PRIVATE DDS_THREADS_WINAPI)
 endif ()
 # Add GCD threading support on Mac OS X
-if (APPLE)
-    # @TODO: Does GCD threading require some configure detection?
+if (GCD_FOUND)
     # If it is standard library then there is no need to detect presence
     target_compile_definitions(dds PRIVATE DDS_THREADS_GCD)
+    target_link_libraries(dds PRIVATE GCD::GCD)
 endif ()
 
 # Add TBB threading if configure found the library
@@ -183,6 +183,7 @@ endif ()
 # Add PPL threading if configure found the header
 if (PPL_FOUND)
     target_compile_definitions(dds PRIVATE DDS_THREADS_PPLIMPL)
+    target_link_libraries(dds PRIVATE PPL::PPL)
 endif ()
 
 # Always enable stl threads as c++11 is required
