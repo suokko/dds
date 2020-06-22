@@ -22,6 +22,11 @@
 #include "Scheduler.h"
 #include "ThreadMgr.h"
 
+#ifdef __APPLE__
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#endif
+
 extern Scheduler scheduler;
 extern Memory memory;
 
@@ -197,27 +202,18 @@ void System::GetHardware(
 #endif
 
 #ifdef __APPLE__
-  // The code for Mac OS X was suggested by Matthew Kidd.
+  // Using sysctl libc function instead of popen for a better reliability
+  // Based on: https://stackoverflow.com/questions/30511579
 
-  // This is physical memory, rather than "free" memory as below
-  // for Linux.  Always leave 0.5 GB for the OS and other stuff.
-  // It would be better to find free memory (how?) but in practice
-  // the number of cores rather than free memory is almost certainly
-  // the limit for Macs which have  standardized hardware (whereas
-  // say a 32 core Linux server is hardly unusual).
-  FILE * fifo = popen("sysctl -n hw.memsize", "r");
-  if (fifo) {
-    fscanf(fifo, "%lld", &kilobytesFree);
-    fclose(fifo);
+  uint64_t mem;
+  size_t len = sizeof(mem);
+  int name[] = {CTL_HW, HW_USERMEM};
 
-    kilobytesFree /= 1024;
-    if (kilobytesFree > 500000)
-    {
-      kilobytesFree -= 500000;
-    }
+  if (sysctl(name, size(name), &mem, &len, NULL, 0)) {
+    perror("sysctlbyname(hw.memsize) failed, fallback to 1GB memory:");
+    kilobytesFree = 1024ULL * 1024ULL;
   } else {
-    perror("popen(sysctl) failed, guessing 1GB memory.");
-    kilobytesFree = 1024 * 1024;
+    kilobytesFree = static_cast<unsigned long long>(mem / 1024);
   }
   return;
 #endif

@@ -58,6 +58,15 @@
   #include <omp.h>
 #endif
 
+#if __cplusplus < 201703L
+template<class T, size_t N>
+constexpr size_t size(const T (&)[N])
+{
+  return N;
+}
+#endif
+
+
 
 // http://stackoverflow.com/a/4030983/211160
 // Use to indicate a variable is being intentionally not referred to (which
