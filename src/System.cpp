@@ -227,7 +227,7 @@ void System::GetHardware(
   unsigned long pages = sysconf (_SC_PHYS_PAGES);
   unsigned long pagesize = sysconf (_SC_PAGESIZE);
   if (pages > 0 && pagesize > 0)
-    kilobytesFree = static_cast<unsigned long long>(pages * (pagesize / (1024 * 2)));
+    kilobytesFree = static_cast<unsigned long long>(pages * (pagesize / 1024));
   else
     kilobytesFree = 1024 * 1024; // guess 1GB
 
