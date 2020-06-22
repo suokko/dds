@@ -11,5 +11,5 @@ execute_process(COMMAND ${CMD}
     RESULT_VARIABLE RES)
 
 if (NOT RES EQUAL 0)
-    message(FATAL_ERROR "OOF")
+    message(FATAL_ERROR)
 endif ()
