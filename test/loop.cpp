@@ -71,7 +71,7 @@ void loop_solve(
       cout << "loop_solve: i " << i << ", j " << j << ": " <<
         "Difference\n\n";
       print_FUT(solvedbdp->solvedBoard[j]);
-      cout << "\n";
+      cout << "\nExpected outcome was:\n";
       print_FUT(fut_list[i+j]);
       cout << "\n";
       exit(EXIT_FAILURE);
@@ -130,7 +130,7 @@ bool loop_calc(
       cout << "loop_calc: i " << i << ", j " << j << ": " <<
         "Difference\n\n";
       print_TABLE(resp->results[j] );
-      cout << "\n";
+      cout << "\nExpected outcome was:\n";
       print_TABLE(table_list[i + j]) ;
       cout << "\n";
       exit(EXIT_FAILURE);
@@ -177,7 +177,7 @@ bool loop_par(
 
     cout << "loop_par i " << i << ": Difference\n\n";
     print_PAR(presp);
-    cout << "\n";
+    cout << "\nExpected outcome was:\n";
     print_PAR(par_list[i]);
     cout << "\n";
     exit(EXIT_FAILURE);
@@ -220,7 +220,7 @@ bool loop_dealerpar(
 
     cout << "loop_dealerpar i " << i << ": Difference\n\n";
     print_DEALERPAR(presp);
-    cout << "\n";
+    cout << "\nExpected outcome was:\n";
     print_DEALERPAR(dealerpar_list[i]);
     cout << "\n";
     exit(EXIT_FAILURE);
