@@ -193,7 +193,6 @@ void System::GetHardware(
 
   SYSTEM_INFO sysinfo;
   GetSystemInfo(&sysinfo);
-  ncores = static_cast<int>(sysinfo.dwNumberOfProcessors);
   return;
 #endif
 
@@ -220,8 +219,6 @@ void System::GetHardware(
     perror("popen(sysctl) failed, guessing 1GB memory.");
     kilobytesFree = 1024 * 1024;
   }
-
-  ncores = sysconf(_SC_NPROCESSORS_ONLN);
   return;
 #endif
 
@@ -234,7 +231,6 @@ void System::GetHardware(
   else
     kilobytesFree = 1024 * 1024; // guess 1GB
 
-  ncores = sysconf(_SC_NPROCESSORS_ONLN);
   return;
 #endif
 }
