@@ -207,13 +207,18 @@ void System::GetHardware(
   // the limit for Macs which have  standardized hardware (whereas
   // say a 32 core Linux server is hardly unusual).
   FILE * fifo = popen("sysctl -n hw.memsize", "r");
-  fscanf(fifo, "%lld", &kilobytesFree);
-  fclose(fifo);
+  if (fifo) {
+    fscanf(fifo, "%lld", &kilobytesFree);
+    fclose(fifo);
 
-  kilobytesFree /= 1024;
-  if (kilobytesFree > 500000)
-  {
-    kilobytesFree -= 500000;
+    kilobytesFree /= 1024;
+    if (kilobytesFree > 500000)
+    {
+      kilobytesFree -= 500000;
+    }
+  } else {
+    perror("popen(sysctl) failed, guessing 1GB memory.");
+    kilobytesFree = 1024 * 1024;
   }
 
   ncores = sysconf(_SC_NPROCESSORS_ONLN);
