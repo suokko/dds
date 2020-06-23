@@ -19,9 +19,21 @@
 #include "ThreadMgr.h"
 
 
-ThreadMgr::ThreadMgr(const unsigned nThreads) :
-  realThreads{nThreads}
+void ThreadMgr::Resize(unsigned nThreads, unsigned nOldThreads)
 {
+  std::unique_lock<std::mutex> guard{mtx};
+  // Wait until all threads are free to avoid race condition with allocation
+  cv.wait(guard, [&]() {
+        if (realThreads.size() == nOldThreads)
+          return true;
+        // Make sure any other blocking thread gets woken up because this thread
+        // can't wakeup yet.
+        cv.notify_one();
+        return false;
+      });
+
+  realThreads.resize(nThreads);
+
   for (unsigned i = 0; i < nThreads; i++)
     realThreads[i] = nThreads - i - 1;
 }
@@ -36,13 +48,11 @@ ThreadMgr::ThreadId ThreadMgr::Occupy()
 }
 
 
-void ThreadMgr::Release(const unsigned thrId)
+void ThreadMgr::Release(unsigned thrId)
 {
   std::unique_lock<std::mutex> guard{mtx};
   realThreads.push_back(thrId);
-  // If list was empty then wake up one sleeper
-  if (realThreads.size() == 1)
-    cv.notify_one();
+  cv.notify_one();
 }
 
 

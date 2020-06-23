@@ -33,6 +33,10 @@
   #include <thread>
 #endif
 
+#ifdef DDS_THREADS_STLASYNC
+  #include <future>
+#endif
+
 #ifdef DDS_THREADS_STLIMPL
   #include <execution>
 #endif

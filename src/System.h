@@ -19,6 +19,8 @@
 
 #include "dds.h"
 
+#include "ThreadMgr.h"
+
 using namespace std;
 
 typedef void (*fptrType)(const int thid);
@@ -49,6 +51,8 @@ class System
     typedef int (System::*RunPtr)();
     vector<RunPtr> RunPtrList;
 
+    ThreadMgr threadMgr;
+
     fptrType fptr;
 
     boards const * bop;
@@ -59,9 +63,12 @@ class System
     int RunThreadsGCD();
     int RunThreadsWinAPI();
     int RunThreadsSTL();
+    int RunThreadsSTLAsync();
     int RunThreadsTBB();
     int RunThreadsSTLIMPL();
     int RunThreadsPPLIMPL();
+
+    void WorkerSTLAsync();
 
     string GetVersion(
       int& major,

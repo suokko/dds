@@ -204,6 +204,7 @@ endif ()
 # Always enable stl threads as c++11 is required
 target_link_libraries(dds PRIVATE Threads::Threads)
 target_compile_definitions(dds PRIVATE DDS_THREADS_STL)
+target_compile_definitions(dds PRIVATE DDS_THREADS_STLASYNC)
 
 # If C++ standard is 17 or higher then STLIMPL is available
 if (CMAKE_CXX_STANDARD GREATER 14)

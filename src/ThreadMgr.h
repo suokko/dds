@@ -25,11 +25,11 @@ class ThreadMgr
     mutable std::mutex mtx;
     std::condition_variable cv;
 
-    void Release(const unsigned thrId);
+    void Release(unsigned thrId);
 
   public:
 
-    ThreadMgr(const unsigned nThreads);
+    void Resize(unsigned nThreads, unsigned nOldThreads);
 
     class ThreadId {
       public:

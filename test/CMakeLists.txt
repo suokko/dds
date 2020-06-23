@@ -49,7 +49,12 @@ set(TEST_DATA
     thomas2
     )
 
-set(THREAD_MODEL default none stl)
+set(THREAD_MODEL
+    default
+    none
+    stl
+    stlasync
+    )
 
 if (WIN32)
     list(APPEND THREAD_MODEL winapi)

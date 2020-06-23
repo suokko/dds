@@ -78,7 +78,8 @@ const std::array<std::string, DDS_SYSTEM_THREAD_SIZE> DDS_SYSTEM_THREADING =
   "STL",
   "TBB",
   "STL-impl",
-  "PPL-impl"
+  "PPL-impl",
+  "STL-async"
 };
 
 
@@ -96,7 +97,7 @@ System::~System()
 void System::Reset()
 {
   runCat = DDS_RUN_SOLVE;
-  numThreads = 1;
+  numThreads = 0;
   preferredSystem = DDS_SYSTEM_THREAD_BASIC;
 
   availableSystem.resize(DDS_SYSTEM_THREAD_SIZE);
@@ -122,6 +123,10 @@ void System::Reset()
 
 #ifdef DDS_THREADS_STL
   availableSystem[DDS_SYSTEM_THREAD_STL] = true;
+#endif
+
+#ifdef DDS_THREADS_STLASYNC
+  availableSystem[DDS_SYSTEM_THREAD_STLASYNC] = true;
 #endif
 
 #ifdef DDS_THREADS_TBB
@@ -158,6 +163,7 @@ void System::Reset()
     &System::RunThreadsSTLIMPL;
   RunPtrList[DDS_SYSTEM_THREAD_PPLIMPL] =
     &System::RunThreadsPPLIMPL;
+  RunPtrList[DDS_SYSTEM_THREAD_STLASYNC] = &System::RunThreadsSTLAsync;
 
   CallbackSimpleList.resize(DDS_RUN_SIZE);
   CallbackSimpleList[DDS_RUN_SOLVE] = SolveChunkCommon;
@@ -242,6 +248,8 @@ int System::RegisterParams(
   if (nThreads < 1)
     return RETURN_THREAD_INDEX;
 
+  // Make sure background threads have completed.
+  threadMgr.Resize(nThreads, numThreads);
   numThreads = nThreads;
   sysMem_MB = mem_usable_MB;
   return RETURN_NO_FAULT;
@@ -477,6 +485,38 @@ int System::RunThreadsSTL()
   return RETURN_NO_FAULT;
 }
 
+void System::WorkerSTLAsync()
+{
+#ifdef DDS_THREADS_STLASYNC
+  auto threadId = threadMgr.Occupy();
+  fptr(threadId);
+#endif
+}
+
+int System::RunThreadsSTLAsync()
+{
+#ifdef DDS_THREADS_STLASYNC
+
+  std::vector<std::future<void>> futures;
+  std::vector<int> uniques;
+  std::vector<int> crossrefs;
+  (* CallbackDuplList[runCat])(* bop, uniques, crossrefs);
+
+  const unsigned nu = static_cast<unsigned>(numThreads);
+  futures.reserve(nu);
+  // Launch first worker as deferred to allow it run in same thread
+  futures.push_back(std::async(std::launch::deferred,
+        &System::WorkerSTLAsync, this));
+  for (unsigned k = 0; k < nu; k++)
+    futures.push_back(std::async(&System::WorkerSTLAsync, this));
+
+  for (auto& f: futures)
+    f.wait();
+#endif
+
+  return RETURN_NO_FAULT;
+}
+
 
 int System::RunThreadsSTLIMPL()
 {
@@ -484,8 +524,6 @@ int System::RunThreadsSTLIMPL()
   vector<int> uniques;
   vector<int> crossrefs;
   (* CallbackDuplList[runCat])(* bop, uniques, crossrefs);
-
-  ThreadMgr threadMgr(numThreads);
 
   for_each(std::execution::par, uniques.begin(), uniques.end(),
     [&](int &bno)
@@ -539,8 +577,6 @@ int System::RunThreadsPPLIMPL()
   vector<int> uniques;
   vector<int> crossrefs;
   (* CallbackDuplList[runCat])(* bop, uniques, crossrefs);
-
-  ThreadMgr threadMgr(numThreads);
 
   Concurrency::parallel_for_each(uniques.begin(), uniques.end(),
     [&](int &bno)

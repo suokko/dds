@@ -67,6 +67,7 @@ const vector<string> threadingList =
   "TBB",
   "STLIMPL",
   "PPLIMPL",
+  "STLAsync",
   "default"
 };
 
@@ -100,7 +101,7 @@ void Usage(
     "\n" <<
     "-t, --threading t  Currently one of (case-insensitive):\n" <<
     "                   default, none, winapi, openmp, gcd, boost,\n" <<
-    "                   stl, tbb, stlimpl, pplimpl.\n" <<
+    "                   stl, tbb, stlimpl, pplimpl, stlasync.\n" <<
     "                   (Default: default meaning that DDS decides)\n" <<
     "\n" <<
     "-n, --numthr n     Maximum number of threads.\n" <<

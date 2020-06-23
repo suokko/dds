@@ -370,6 +370,7 @@ struct DDSInfo
   // 6 = TBB,
   // 7 = STLIMPL (for_each), experimental only
   // 8 = PPLIMPL (for_each), experimental only
+  // 9 = STLAsync (uses std::async for a simple work queue)
   int threading;
 
   // The actual number of threads configured
