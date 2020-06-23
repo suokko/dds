@@ -487,9 +487,6 @@ int System::RunThreadsSTLIMPL()
   vector<int> crossrefs;
   (* CallbackDuplList[runCat])(* bop, uniques, crossrefs);
 
-  static atomic<int> thrIdNext = 0;
-  bool err = false;
-
   ThreadMgr threadMgr(numThreads);
 
   for_each(std::execution::par, uniques.begin(), uniques.end(),
@@ -501,12 +498,6 @@ int System::RunThreadsSTLIMPL()
 
     threadMgr.Release(realThrId);
   });
-
-  if (err)
-  {
-    cout << "Too many threads, numThreads " << numThreads << endl;
-    return RETURN_THREAD_INDEX;
-  }
 
   (* CallbackCopyList[runCat])(crossrefs);
 #endif
@@ -553,9 +544,6 @@ int System::RunThreadsPPLIMPL()
   vector<int> crossrefs;
   (* CallbackDuplList[runCat])(* bop, uniques, crossrefs);
 
-  static atomic<int> thrIdNext = 0;
-  bool err = false, err2 = false;
-
   ThreadMgr threadMgr(numThreads);
 
   Concurrency::parallel_for_each(uniques.begin(), uniques.end(),
@@ -568,16 +556,6 @@ int System::RunThreadsPPLIMPL()
     threadMgr.Release(realThrId);
   });
 
-  if (err)
-  {
-    cout << "Too many threads, numThreads " << numThreads << endl;
-    return RETURN_THREAD_INDEX;
-  }
-  else if (err2)
-  {
-    cout << "Release failed, numThreads " << numThreads << endl;
-    return RETURN_THREAD_INDEX;
-  }
 
   (* CallbackCopyList[runCat])(crossrefs);
 #endif
