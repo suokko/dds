@@ -8,6 +8,7 @@
 */
 
 
+#include <array>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -30,7 +31,7 @@
 extern Scheduler scheduler;
 extern Memory memory;
 
-const vector<string> DDS_SYSTEM_PLATFORM =
+const std::array<std::string, 5> DDS_SYSTEM_PLATFORM =
 {
   "",
   "Windows",
@@ -39,7 +40,7 @@ const vector<string> DDS_SYSTEM_PLATFORM =
   "Apple"
 };
 
-const vector<string> DDS_SYSTEM_COMPILER =
+const std::array<std::string, 5> DDS_SYSTEM_COMPILER =
 {
   "",
   "Microsoft Visual C++",
@@ -48,24 +49,11 @@ const vector<string> DDS_SYSTEM_COMPILER =
   "clang"
 };
 
-const vector<string> DDS_SYSTEM_CONSTRUCTOR =
+const std::array<std::string, 3> DDS_SYSTEM_CONSTRUCTOR =
 {
   "",
   "DllMain",
   "Unix-style"
-};
-
-const vector<string> DDS_SYSTEM_THREADING =
-{
-  "None",
-  "Windows",
-  "OpenMP",
-  "GCD",
-  "Boost",
-  "STL",
-  "TBB",
-  "STL-impl",
-  "PPL-impl"
 };
 
 #define DDS_SYSTEM_THREAD_BASIC 0
@@ -77,7 +65,21 @@ const vector<string> DDS_SYSTEM_THREADING =
 #define DDS_SYSTEM_THREAD_TBB 6
 #define DDS_SYSTEM_THREAD_STLIMPL 7
 #define DDS_SYSTEM_THREAD_PPLIMPL 8
-#define DDS_SYSTEM_THREAD_SIZE 9
+#define DDS_SYSTEM_THREAD_STLASYNC 9
+#define DDS_SYSTEM_THREAD_SIZE 10
+
+const std::array<std::string, DDS_SYSTEM_THREAD_SIZE> DDS_SYSTEM_THREADING =
+{
+  "None",
+  "Windows",
+  "OpenMP",
+  "GCD",
+  "Boost",
+  "STL",
+  "TBB",
+  "STL-impl",
+  "PPL-impl"
+};
 
 
 System::System()
