@@ -86,6 +86,8 @@ class Scheduler
 #endif
     };
 
+    const boards *bop;
+
     handType hands[MAXNOOFBOARDS];
 
     groupType group[MAXNOOFBOARDS];
@@ -156,25 +158,23 @@ class Scheduler
 
   public:
 
-    Scheduler();
-
-    ~Scheduler();
-
-    void RegisterThreads(
-      const int n);
-
-    void RegisterRun(
+    Scheduler(const int n,
       const enum RunMode mode,
       const boards& bds,
       const playTracesBin& pl);
 
-    void RegisterRun(
+    Scheduler(const int n,
       const enum RunMode mode,
       const boards& bds);
+
+    ~Scheduler();
 
     schedType GetNumber(const int thrId);
 
     int NumGroups() const;
+
+    const boards* GetBOP() const
+    {return bop;}
 
 #ifdef DDS_SCHEDULER
     void StartThreadTimer(const int thrId);

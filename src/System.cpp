@@ -28,7 +28,6 @@
 #include <sys/sysctl.h>
 #endif
 
-extern Scheduler scheduler;
 extern Memory memory;
 
 const std::array<std::string, 5> DDS_SYSTEM_PLATFORM =
@@ -82,6 +81,11 @@ const std::array<std::string, DDS_SYSTEM_THREAD_SIZE> DDS_SYSTEM_THREADING =
   "STL-async"
 };
 
+constexpr std::array<fptrType, 3> System::CallbackSimpleList;
+constexpr std::array<fduplType, 3> System::CallbackDuplList;
+constexpr std::array<fsingleType, 3> System::CallbackSingleList;
+constexpr std::array<fcopyType, 3> System::CallbackCopyList;
+constexpr std::array<System::RunPtr, 10> System::RunPtrList;
 
 System::System()
 {
@@ -96,7 +100,6 @@ System::~System()
 
 void System::Reset()
 {
-  runCat = DDS_RUN_SOLVE;
   numThreads = 0;
   preferredSystem = DDS_SYSTEM_THREAD_BASIC;
 
@@ -150,40 +153,6 @@ void System::Reset()
       break;
     }
   }
-
-  RunPtrList.resize(DDS_SYSTEM_THREAD_SIZE);
-  RunPtrList[DDS_SYSTEM_THREAD_BASIC] = &System::RunThreadsBasic;
-  RunPtrList[DDS_SYSTEM_THREAD_WINAPI] = &System::RunThreadsWinAPI;
-  RunPtrList[DDS_SYSTEM_THREAD_OPENMP] = &System::RunThreadsOpenMP;
-  RunPtrList[DDS_SYSTEM_THREAD_GCD] = &System::RunThreadsGCD;
-  RunPtrList[DDS_SYSTEM_THREAD_BOOST] = &System::RunThreadsBoost;
-  RunPtrList[DDS_SYSTEM_THREAD_STL] = &System::RunThreadsSTL;
-  RunPtrList[DDS_SYSTEM_THREAD_TBB] = &System::RunThreadsTBB;
-  RunPtrList[DDS_SYSTEM_THREAD_STLIMPL] =
-    &System::RunThreadsSTLIMPL;
-  RunPtrList[DDS_SYSTEM_THREAD_PPLIMPL] =
-    &System::RunThreadsPPLIMPL;
-  RunPtrList[DDS_SYSTEM_THREAD_STLASYNC] = &System::RunThreadsSTLAsync;
-
-  CallbackSimpleList.resize(DDS_RUN_SIZE);
-  CallbackSimpleList[DDS_RUN_SOLVE] = SolveChunkCommon;
-  CallbackSimpleList[DDS_RUN_CALC] = CalcChunkCommon;
-  CallbackSimpleList[DDS_RUN_TRACE] = PlayChunkCommon;
-
-  CallbackDuplList.resize(DDS_RUN_SIZE);
-  CallbackDuplList[DDS_RUN_SOLVE] = DetectSolveDuplicates;
-  CallbackDuplList[DDS_RUN_CALC] = DetectCalcDuplicates;
-  CallbackDuplList[DDS_RUN_TRACE] = DetectPlayDuplicates;
-
-  CallbackSingleList.resize(DDS_RUN_SIZE);
-  CallbackSingleList[DDS_RUN_SOLVE] = SolveSingleCommon;
-  CallbackSingleList[DDS_RUN_CALC] = CalcSingleCommon;
-  CallbackSingleList[DDS_RUN_TRACE] = PlaySingleCommon;
-
-  CallbackCopyList.resize(DDS_RUN_SIZE);
-  CallbackCopyList[DDS_RUN_SOLVE] = CopySolveSingle;
-  CallbackCopyList[DDS_RUN_CALC] = CopyCalcSingle;
-  CallbackCopyList[DDS_RUN_TRACE] = CopyPlaySingle;
 }
 
 
@@ -256,19 +225,6 @@ int System::RegisterParams(
 }
 
 
-int System::RegisterRun(
-  const RunMode mode,
-  const boards& bdsIn)
-{
-  if (mode >= DDS_RUN_SIZE)
-    return RETURN_THREAD_MISSING; // Not quite right;
-
-  runCat = mode;
-  bop = &bdsIn;
-  return RETURN_NO_FAULT;
-}
-
-
 bool System::IsSingleThreaded() const
 {
   return (preferredSystem == DDS_SYSTEM_THREAD_BASIC);
@@ -304,9 +260,9 @@ int System::PreferThreading(const unsigned code)
 //                           Basic                                  //
 //////////////////////////////////////////////////////////////////////
 
-int System::RunThreadsBasic()
+int System::RunThreadsBasic(RunMode runCat, Scheduler &scheduler)
 {
-  (*fptr)(0);
+  CallbackSimpleList[runCat](0, scheduler);
   return RETURN_NO_FAULT;
 }
 
@@ -321,6 +277,7 @@ struct WinWrapType
   int thrId;
   fptrType fptr;
   HANDLE *waitPtr;
+  Scheduler *scheduler;
 };
 
 DWORD CALLBACK WinCallback(void * p);
@@ -328,7 +285,7 @@ DWORD CALLBACK WinCallback(void * p);
 DWORD CALLBACK WinCallback(void * p)
 {
   WinWrapType * winWrap = static_cast<WinWrapType *>(p);
-  (*(winWrap->fptr))(winWrap->thrId);
+  (*(winWrap->fptr))(winWrap->thrId, *winWrap->scheduler);
 
   if (SetEvent(winWrap->waitPtr[winWrap->thrId]) == 0)
     return 0;
@@ -338,9 +295,12 @@ DWORD CALLBACK WinCallback(void * p)
 #endif
 
 
-int System::RunThreadsWinAPI()
+int System::RunThreadsWinAPI(RunMode runCat, Scheduler &scheduler)
 {
+  UNUSED(runCat);
+  UNUSED(scheduler);
 #ifdef DDS_THREADS_WINAPI
+  auto fptr = CallbackSimpleList[runCat];
   HANDLE * solveAllEvents = static_cast<HANDLE * >(
     malloc(static_cast<unsigned>(numThreads) * sizeof(HANDLE)));
 
@@ -360,6 +320,7 @@ int System::RunThreadsWinAPI()
     winWrap[k].thrId = static_cast<int>(k);
     winWrap[k].fptr = fptr;
     winWrap[k].waitPtr = solveAllEvents;
+    winWrap[k].scheduler = &scheduler;
 
     int res = QueueUserWorkItem(WinCallback,
       static_cast<void *>(&winWrap[k]), WT_EXECUTELONGFUNCTION);
@@ -388,8 +349,10 @@ int System::RunThreadsWinAPI()
 //                           OpenMP                                 //
 //////////////////////////////////////////////////////////////////////
 
-int System::RunThreadsOpenMP()
+int System::RunThreadsOpenMP(RunMode runCat, Scheduler &scheduler)
 {
+  UNUSED(runCat);
+  UNUSED(scheduler);
 #ifdef DDS_THREADS_OPENMP
   // Added after suggestion by Dirk Willecke.
   if (omp_get_dynamic())
@@ -397,13 +360,14 @@ int System::RunThreadsOpenMP()
 
   omp_set_num_threads(numThreads);
 
-  #pragma omp parallel default(none)
+  auto fptr = CallbackSimpleList[runCat];
+  #pragma omp parallel shared(fptr, scheduler)
   {
     #pragma omp for schedule(dynamic)
     for (int k = 0; k < numThreads; k++)
     {
       int thrId = omp_get_thread_num();
-      (*fptr)(thrId);
+      (*fptr)(thrId, scheduler);
     }
   }
 #endif
@@ -416,15 +380,18 @@ int System::RunThreadsOpenMP()
 //                            GCD                                   //
 //////////////////////////////////////////////////////////////////////
 
-int System::RunThreadsGCD()
+int System::RunThreadsGCD(RunMode runCat, Scheduler &scheduler)
 {
+  UNUSED(runCat);
+  UNUSED(scheduler);
 #ifdef DDS_THREADS_GCD
+  auto fptr = CallbackSimpleList[runCat];
   dispatch_apply(static_cast<size_t>(numThreads),
     dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0),
     ^(size_t t)
   {
     int thrId = static_cast<int>(t);
-    (*fptr)(thrId);
+    (*fptr)(thrId, scheduler);
   });
 #endif
 
@@ -436,16 +403,19 @@ int System::RunThreadsGCD()
 //                           Boost                                  //
 //////////////////////////////////////////////////////////////////////
 
-int System::RunThreadsBoost()
+int System::RunThreadsBoost(RunMode runCat, Scheduler &scheduler)
 {
+  UNUSED(runCat);
+  UNUSED(scheduler);
 #ifdef DDS_THREADS_BOOST
+  auto fptr = CallbackSimpleList[runCat];
   vector<boost::thread *> threads;
 
   const unsigned nu = static_cast<unsigned>(numThreads);
   threads.resize(nu);
 
   for (unsigned k = 0; k < nu; k++)
-    threads[k] = new boost::thread(fptr, k);
+    threads[k] = new boost::thread(fptr, k, std::ref(scheduler));
 
   for (unsigned k = 0; k < nu; k++)
   {
@@ -462,21 +432,24 @@ int System::RunThreadsBoost()
 //                            STL                                   //
 //////////////////////////////////////////////////////////////////////
 
-int System::RunThreadsSTL()
+int System::RunThreadsSTL(RunMode runCat, Scheduler &scheduler)
 {
+  UNUSED(runCat);
+  UNUSED(scheduler);
 #ifdef DDS_THREADS_STL
+  auto fptr = CallbackSimpleList[runCat];
   vector<thread> threads;
 
   vector<int> uniques;
   vector<int> crossrefs;
-  (* CallbackDuplList[runCat])(* bop, uniques, crossrefs);
+  (* CallbackDuplList[runCat])(*scheduler.GetBOP(), uniques, crossrefs);
 
   const unsigned nu = static_cast<unsigned>(numThreads);
   threads.reserve(nu);
   for (unsigned k = 1; k < nu; k++)
-    threads.emplace_back(fptr, k);
+    threads.emplace_back(fptr, k, std::ref(scheduler));
 
-  fptr(0);
+  fptr(0, scheduler);
 
   for (auto& t: threads)
     t.join();
@@ -485,22 +458,25 @@ int System::RunThreadsSTL()
   return RETURN_NO_FAULT;
 }
 
-void System::WorkerSTLAsync()
+void System::WorkerSTLAsync(fptrType fptr, Scheduler &scheduler)
 {
 #ifdef DDS_THREADS_STLASYNC
   auto threadId = threadMgr.Occupy();
-  fptr(threadId);
+  fptr(threadId, scheduler);
 #endif
 }
 
-int System::RunThreadsSTLAsync()
+int System::RunThreadsSTLAsync(RunMode runCat, Scheduler &scheduler)
 {
+  UNUSED(runCat);
+  UNUSED(scheduler);
 #ifdef DDS_THREADS_STLASYNC
+  auto fptr = CallbackSimpleList[runCat];
 
   std::vector<std::future<void>> futures;
   std::vector<int> uniques;
   std::vector<int> crossrefs;
-  (* CallbackDuplList[runCat])(* bop, uniques, crossrefs);
+  (* CallbackDuplList[runCat])(*scheduler.GetBOP(), uniques, crossrefs);
 
   const unsigned nu = static_cast<unsigned>(numThreads);
   futures.reserve(nu);
@@ -508,7 +484,7 @@ int System::RunThreadsSTLAsync()
   futures.push_back(std::async(std::launch::deferred,
         &System::WorkerSTLAsync, this));
   for (unsigned k = 0; k < nu; k++)
-    futures.push_back(std::async(&System::WorkerSTLAsync, this));
+    futures.push_back(std::async(&System::WorkerSTLAsync, this, fptr, std::ref(scheduler)));
 
   for (auto& f: futures)
     f.wait();
@@ -518,12 +494,14 @@ int System::RunThreadsSTLAsync()
 }
 
 
-int System::RunThreadsSTLIMPL()
+int System::RunThreadsSTLIMPL(RunMode runCat, Scheduler &scheduler)
 {
+  UNUSED(runCat);
+  UNUSED(scheduler);
 #ifdef DDS_THREADS_STLIMPL
   vector<int> uniques;
   vector<int> crossrefs;
-  (* CallbackDuplList[runCat])(* bop, uniques, crossrefs);
+  (* CallbackDuplList[runCat])(*scheduler.GetBOP(), uniques, crossrefs);
 
   for_each(std::execution::par, uniques.begin(), uniques.end(),
     [&](int &bno)
@@ -544,16 +522,19 @@ int System::RunThreadsSTLIMPL()
 //                            TBB                                   //
 //////////////////////////////////////////////////////////////////////
 
-int System::RunThreadsTBB()
+int System::RunThreadsTBB(RunMode runCat, Scheduler &scheduler)
 {
+  UNUSED(runCat);
+  UNUSED(scheduler);
 #ifdef DDS_THREADS_TBB
+  auto fptr = CallbackSimpleList[runCat];
   vector<tbb::tbb_thread *> threads;
 
   const unsigned nu = static_cast<unsigned>(numThreads);
   threads.resize(nu);
 
   for (unsigned k = 0; k < nu; k++)
-    threads[k] = new tbb::tbb_thread(fptr, k);
+    threads[k] = new tbb::tbb_thread(fptr, k, std::ref(scheduler));
 
   for (unsigned k = 0; k < nu; k++)
   {
@@ -571,8 +552,10 @@ int System::RunThreadsTBB()
 //////////////////////////////////////////////////////////////////////
 
 
-int System::RunThreadsPPLIMPL()
+int System::RunThreadsPPLIMPL(RunMode runCat, Scheduler &scheduler)
 {
+  UNUSED(runCat);
+  UNUSED(scheduler);
 #ifdef DDS_THREADS_PPLIMPL
   vector<int> uniques;
   vector<int> crossrefs;
@@ -593,13 +576,20 @@ int System::RunThreadsPPLIMPL()
   return RETURN_NO_FAULT;
 }
 
-
-
-int System::RunThreads()
+int System::RunThreads(RunMode runCat,
+    const boards& bop,
+    const playTracesBin& pl)
 {
-  fptr = CallbackSimpleList[runCat];
+  Scheduler scheduler{numThreads, runCat, bop, pl};
 
-  return (this->*RunPtrList[preferredSystem])();
+  return (this->*RunPtrList[preferredSystem])(runCat, scheduler);
+}
+
+int System::RunThreads(RunMode runCat, const boards& bop)
+{
+  Scheduler scheduler{numThreads, runCat, bop};
+
+  return (this->*RunPtrList[preferredSystem])(runCat, scheduler);
 }
 
 

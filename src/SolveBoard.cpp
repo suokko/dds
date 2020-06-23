@@ -21,7 +21,6 @@ paramType param;
 
 extern System sysdep;
 extern Memory memory;
-extern Scheduler scheduler;
 
 int SolveAllBoardsN(
   boards& bds,
@@ -64,7 +63,7 @@ void CopySolveSingle(const vector<int>& crossrefs)
       continue;
 
     START_THREAD_TIMER(thrId);
-    param.solvedp->solvedBoard[i] = 
+    param.solvedp->solvedBoard[i] =
       param.solvedp->solvedBoard[crossrefs[i]];
     END_THREAD_TIMER(thrId);
   }
@@ -72,7 +71,8 @@ void CopySolveSingle(const vector<int>& crossrefs)
 
 
 void SolveChunkCommon(
-  const int thrId)
+  const int thrId,
+  Scheduler &scheduler)
 {
   int index;
   schedType st;
@@ -120,24 +120,17 @@ int SolveAllBoardsN(
   param.solvedp = &solved;
   param.noOfBoards = bds.noOfBoards;
 
-  scheduler.RegisterRun(DDS_RUN_SOLVE, bds);
-  sysdep.RegisterRun(DDS_RUN_SOLVE, bds);
-
   for (int k = 0; k < MAXNOOFBOARDS; k++)
     solved.solvedBoard[k].cards = 0;
 
   START_BLOCK_TIMER;
-  int retRun = sysdep.RunThreads();
+  int retRun = sysdep.RunThreads(DDS_RUN_SOLVE, bds);
   END_BLOCK_TIMER;
 
   if (retRun != RETURN_NO_FAULT)
     return retRun;
 
   solved.noOfBoards = param.noOfBoards;
-
-#ifdef DDS_SCHEDULER 
-  scheduler.PrintTiming();
-#endif
 
   if (param.error == 0)
     return RETURN_NO_FAULT;

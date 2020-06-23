@@ -19,11 +19,16 @@
 
 #include "dds.h"
 
+#include "CalcTables.h"
+#include "PlayAnalyser.h"
+#include "SolveBoard.h"
 #include "ThreadMgr.h"
 
 using namespace std;
 
-typedef void (*fptrType)(const int thid);
+class Scheduler;
+
+typedef void (*fptrType)(const int thid, Scheduler &scheduler);
 typedef void (*fduplType)(
   const boards& bds, vector<int>& uniques, vector<int>& crossrefs);
 typedef void (*fsingleType)(const int thid, const int bno);
@@ -34,8 +39,6 @@ class System
 {
   private:
 
-    RunMode runCat; // SOLVE / CALC / PLAY
-
     int numThreads;
     int sysMem_MB;
 
@@ -43,32 +46,55 @@ class System
 
     vector<bool> availableSystem;
 
-    vector<fptrType> CallbackSimpleList;
-    vector<fduplType> CallbackDuplList;
-    vector<fsingleType> CallbackSingleList;
-    vector<fcopyType> CallbackCopyList;
-
-    typedef int (System::*RunPtr)();
-    vector<RunPtr> RunPtrList;
+    static constexpr std::array<fptrType, 3> CallbackSimpleList = {
+      SolveChunkCommon,
+      CalcChunkCommon,
+      PlayChunkCommon
+    };
+    static constexpr std::array<fduplType, 3> CallbackDuplList = {
+      DetectSolveDuplicates,
+      DetectCalcDuplicates,
+      DetectPlayDuplicates
+    };
+    static constexpr std::array<fsingleType, 3> CallbackSingleList = {
+      SolveSingleCommon,
+      CalcSingleCommon,
+      PlaySingleCommon
+    };
+    static constexpr std::array<fcopyType, 3> CallbackCopyList = {
+      CopySolveSingle,
+      CopyCalcSingle,
+      CopyPlaySingle
+    };
 
     ThreadMgr threadMgr;
 
-    fptrType fptr;
+    int RunThreadsBasic(RunMode runCat, Scheduler &scheduler);
+    int RunThreadsBoost(RunMode runCat, Scheduler &scheduler);
+    int RunThreadsOpenMP(RunMode runCat, Scheduler &scheduler);
+    int RunThreadsGCD(RunMode runCat, Scheduler &scheduler);
+    int RunThreadsWinAPI(RunMode runCat, Scheduler &scheduler);
+    int RunThreadsSTL(RunMode runCat, Scheduler &scheduler);
+    int RunThreadsSTLAsync(RunMode runCat, Scheduler &scheduler);
+    int RunThreadsTBB(RunMode runCat, Scheduler &scheduler);
+    int RunThreadsSTLIMPL(RunMode runCat, Scheduler &scheduler);
+    int RunThreadsPPLIMPL(RunMode runCat, Scheduler &scheduler);
 
-    boards const * bop;
+    typedef int (System::*RunPtr)(RunMode, Scheduler &);
+    static constexpr std::array<RunPtr, 10> RunPtrList = {
+      &System::RunThreadsBasic,
+      &System::RunThreadsWinAPI,
+      &System::RunThreadsOpenMP,
+      &System::RunThreadsGCD,
+      &System::RunThreadsBoost,
+      &System::RunThreadsSTL,
+      &System::RunThreadsTBB,
+      &System::RunThreadsSTLIMPL,
+      &System::RunThreadsPPLIMPL,
+      &System::RunThreadsSTLAsync
+    };
 
-    int RunThreadsBasic();
-    int RunThreadsBoost();
-    int RunThreadsOpenMP();
-    int RunThreadsGCD();
-    int RunThreadsWinAPI();
-    int RunThreadsSTL();
-    int RunThreadsSTLAsync();
-    int RunThreadsTBB();
-    int RunThreadsSTLIMPL();
-    int RunThreadsPPLIMPL();
-
-    void WorkerSTLAsync();
+    void WorkerSTLAsync(fptrType, Scheduler &);
 
     string GetVersion(
       int& major,
@@ -94,10 +120,6 @@ class System
       const int nThreads,
       const int mem_usable_MB);
 
-    int RegisterRun(
-      const RunMode r,
-      const boards& bop);
-
     bool IsSingleThreaded() const;
 
     bool IsIMPL() const;
@@ -110,7 +132,14 @@ class System
 
     int PreferThreading(const unsigned code);
 
-    int RunThreads();
+    int RunThreads(
+        const RunMode r,
+        const boards& bop);
+
+    int RunThreads(
+        const RunMode r,
+        const boards& bop,
+        const playTracesBin& pl);
 
     string str(DDSInfo * info) const;
 };

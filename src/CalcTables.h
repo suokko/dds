@@ -16,6 +16,7 @@
 
 using namespace std;
 
+class Scheduler;
 
 void CalcSingleCommon(
   const int thrID,
@@ -25,7 +26,8 @@ void CopyCalcSingle(
   const vector<int>& crossrefs);
 
 void CalcChunkCommon(
-  const int thrId);
+  const int thrId,
+  Scheduler &scheduler);
 
 void DetectCalcDuplicates(
   const boards& bds,

@@ -16,13 +16,15 @@
 
 using namespace std;
 
+class Scheduler;
 
 void PlaySingleCommon(
   const int thrId,
   const int bno);
 
 void PlayChunkCommon(
-  const int thrId);
+  const int thrId,
+  Scheduler &scheduler);
 
 void DetectPlayDuplicates(
   const boards& bds,

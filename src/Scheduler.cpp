@@ -16,7 +16,22 @@
 #include "Scheduler.h"
 
 
-Scheduler::Scheduler()
+Scheduler::Scheduler(
+    const int nThreads,
+    const enum RunMode mode,
+    const boards& bds,
+    const playTracesBin& pl) :
+  Scheduler{nThreads, mode, bds}
+{
+  for (int b = 0; b < bds.noOfBoards; b++)
+    hands[b].depth = pl.plays[b].number;
+}
+
+Scheduler::Scheduler(
+    const int nThreads,
+    const enum RunMode mode,
+    const boards& bds) :
+  bop{&bds}
 {
   numHands = 0;
 
@@ -32,9 +47,33 @@ Scheduler::Scheduler()
   }
 #endif
 
-  Scheduler::RegisterThreads(1);
-}
+  const unsigned nu = static_cast<unsigned>(nThreads);
 
+  threadGroup.resize(nu);
+  threadCurrGroup.resize(nu);
+  threadToHand.resize(nu);
+
+#ifdef DDS_SCHEDULER
+  timeThread.Init("Threads", nu);
+  timersThread.resize(nu);
+#endif
+
+  Scheduler::Reset();
+
+  numHands = bds.noOfBoards;
+
+  // First split the hands according to strain and hash key.
+  // This will lead to a few random collisions as well.
+
+  Scheduler::MakeGroups(bds);
+
+  // Then check whether groups with at least two elements are
+  // homogeneous or whether they need to be split.
+
+  Scheduler::FinetuneGroups();
+
+  Scheduler::SortHands(mode);
+}
 
 void Scheduler::InitHighCards()
 {
@@ -86,6 +125,9 @@ void Scheduler::InitTimes()
 
 Scheduler::~Scheduler()
 {
+#ifdef DDS_SCHEDULER
+  PrintTiming();
+#endif
 }
 
 
@@ -108,56 +150,6 @@ void Scheduler::Reset()
 }
 
 
-void Scheduler::RegisterThreads(
-  const int n)
-{
-  const unsigned nu = static_cast<unsigned>(n);
-  if (nu == threadGroup.size())
-    return;
-
-  threadGroup.resize(nu);
-  threadCurrGroup.resize(nu);
-  threadToHand.resize(nu);
-
-#ifdef DDS_SCHEDULER
-  timeThread.Init("Threads", nu);
-  timersThread.resize(nu);
-#endif
-}
-
-
-void Scheduler::RegisterRun(
-  const enum RunMode mode,
-  const boards& bds,
-  const playTracesBin& pl)
-{
-  for (int b = 0; b < bds.noOfBoards; b++)
-    hands[b].depth = pl.plays[b].number;
-  
-  Scheduler::RegisterRun(mode, bds);
-}
-
-
-void Scheduler::RegisterRun(
-  const enum RunMode mode,
-  const boards& bds)
-{
-  Scheduler::Reset();
-
-  numHands = bds.noOfBoards;
-
-  // First split the hands according to strain and hash key.
-  // This will lead to a few random collisions as well.
-
-  Scheduler::MakeGroups(bds);
-
-  // Then check whether groups with at least two elements are
-  // homogeneous or whether they need to be split.
-
-  Scheduler::FinetuneGroups();
-
-  Scheduler::SortHands(mode);
-}
 
 
 void Scheduler::SortHands(const enum RunMode mode)

@@ -38,7 +38,6 @@ playparamType traceparam;
 
 extern System sysdep;
 extern Memory memory;
-extern Scheduler scheduler;
 
 
 int STDCALL AnalysePlayBin(
@@ -285,7 +284,8 @@ void PlaySingleCommon(
 }
 
 
-void PlayChunkCommon(const int thrId)
+void PlayChunkCommon(const int thrId,
+    Scheduler &scheduler)
 {
   int index;
   schedType st;
@@ -324,11 +324,8 @@ int STDCALL AnalyseAllPlaysBin(
   traceparam.noOfBoards = bop->noOfBoards;
   traceparam.solvedp = solvedp;
 
-  scheduler.RegisterRun(DDS_RUN_TRACE, * bop, * plp);
-  sysdep.RegisterRun(DDS_RUN_TRACE, * bop);
-
   START_BLOCK_TIMER;
-  int retRun = sysdep.RunThreads();
+  int retRun = sysdep.RunThreads(DDS_RUN_TRACE, *bop, *plp);
   END_BLOCK_TIMER;
 
   if (retRun != RETURN_NO_FAULT)

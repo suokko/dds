@@ -21,7 +21,6 @@ paramType cparam;
 
 extern System sysdep;
 extern Memory memory;
-extern Scheduler scheduler;
 
 int CalcAllBoardsN(
   boards * bop,
@@ -88,7 +87,8 @@ void CopyCalcSingle(const vector<int>& crossrefs)
 
 
 void CalcChunkCommon(
-  const int thrId)
+  const int thrId,
+  Scheduler &scheduler)
 {
   // Solves each deal and strain for all four declarers.
   vector<futureTricks> fut;
@@ -136,24 +136,17 @@ int CalcAllBoardsN(
   cparam.solvedp = solvedp;
   cparam.noOfBoards = bop->noOfBoards;
 
-  scheduler.RegisterRun(DDS_RUN_CALC, * bop);
-  sysdep.RegisterRun(DDS_RUN_CALC, * bop);
-
   for (int k = 0; k < MAXNOOFBOARDS; k++)
     solvedp->solvedBoard[k].cards = 0;
 
   START_BLOCK_TIMER;
-  int retRun = sysdep.RunThreads();
+  int retRun = sysdep.RunThreads(DDS_RUN_CALC, * bop);
   END_BLOCK_TIMER;
 
   if (retRun != RETURN_NO_FAULT)
     return retRun;
 
   solvedp->noOfBoards = cparam.noOfBoards;
-
-#ifdef DDS_SCHEDULER 
-  scheduler.PrintTiming();
-#endif
 
   if (cparam.error == 0)
     return RETURN_NO_FAULT;

@@ -20,7 +20,6 @@
 
 System sysdep;
 Memory memory;
-Scheduler scheduler;
 
 void InitConstants();
 
@@ -152,8 +151,6 @@ void STDCALL SetResources(
   }
 
   sysdep.RegisterParams(noOfThreads, memMaxMB);
-
-  scheduler.RegisterThreads(noOfThreads);
 
   // Clear the thread memory and fill it up again.
   memory.Resize(0, DDS_TT_SMALL, 0, 0);
