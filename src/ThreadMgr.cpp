@@ -26,13 +26,13 @@ ThreadMgr::ThreadMgr(const unsigned nThreads) :
     realThreads[i] = nThreads - i - 1;
 }
 
-unsigned ThreadMgr::Occupy()
+ThreadMgr::ThreadId ThreadMgr::Occupy()
 {
   std::unique_lock<std::mutex> guard{mtx};
   cv.wait(guard, [&]() {return realThreads.size() > 0;});
   unsigned r = realThreads.back();
   realThreads.pop_back();
-  return r;
+  return {*this, r};
 }
 
 
@@ -59,5 +59,16 @@ void ThreadMgr::Print(
   {
       fo << t << endl;
   }
+}
+
+ThreadMgr::ThreadId::ThreadId(ThreadMgr &p, unsigned i) :
+  parent(p),
+  id(i)
+{
+}
+
+ThreadMgr::ThreadId::~ThreadId()
+{
+  parent.Release(id);
 }
 

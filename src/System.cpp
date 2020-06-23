@@ -490,11 +490,9 @@ int System::RunThreadsSTLIMPL()
   for_each(std::execution::par, uniques.begin(), uniques.end(),
     [&](int &bno)
   {
-    unsigned realThrId = threadMgr.Occupy();
+    auto realThrId = threadMgr.Occupy();
 
     (* CallbackSingleList[runCat])(realThrId, bno);
-
-    threadMgr.Release(realThrId);
   });
 
   (* CallbackCopyList[runCat])(crossrefs);
@@ -547,11 +545,9 @@ int System::RunThreadsPPLIMPL()
   Concurrency::parallel_for_each(uniques.begin(), uniques.end(),
     [&](int &bno)
   {
-    unsigned realThrId = threadMgr.Occupy();
+    auto realThrId = threadMgr.Occupy();
 
     (* CallbackSingleList[runCat])(realThrId, bno);
-
-    threadMgr.Release(realThrId);
   });
 
 

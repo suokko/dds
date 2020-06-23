@@ -25,17 +25,32 @@ class ThreadMgr
     mutable std::mutex mtx;
     std::condition_variable cv;
 
+    void Release(const unsigned thrId);
+
   public:
 
     ThreadMgr(const unsigned nThreads);
 
-    unsigned Occupy();
+    class ThreadId {
+      public:
+        friend class ThreadMgr;
+        ~ThreadId();
 
-    void Release(const unsigned thrId);
+        operator unsigned() const { return id; }
+
+      private:
+        ThreadId(ThreadMgr &parent, unsigned id);
+
+        ThreadMgr &parent;
+        unsigned id;
+    };
+
+    ThreadId Occupy();
 
     void Print(
       const string& fname,
       const string& tag) const;
+
 };
 
 #endif
