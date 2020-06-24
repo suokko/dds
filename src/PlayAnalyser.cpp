@@ -25,17 +25,6 @@ using namespace std;
   ofstream fout;
 #endif
 
-struct playparamType
-{
-  int noOfBoards;
-  playTracesBin * plp;
-  solvedPlays * solvedp;
-  int error;
-};
-
-paramType playparam;
-playparamType traceparam;
-
 extern System sysdep;
 extern Memory memory;
 
@@ -264,27 +253,28 @@ int STDCALL AnalysePlayPBN(
 }
 
 
-void PlaySingleCommon(
+void PlaySingleCommon(paramType &param,
   const int thrId,
   const int bno)
 {
+  playparamType &playparam = static_cast<playparamType&>(param);
   solvedPlay solved;
 
   int res = AnalysePlayBin(
     playparam.bop->deals[bno],
-    traceparam.plp->plays[bno],
+    playparam.plp->plays[bno],
     &solved,
     thrId);
 
   // If there are multiple errors, this will catch one of them.
   if (res == 1)
-    traceparam.solvedp->solved[bno] = solved;
+    playparam.solvedplays->solved[bno] = solved;
   else
    playparam.error = res;
 }
 
 
-void PlayChunkCommon(const int thrId,
+void PlayChunkCommon(paramType &param, const int thrId,
     Scheduler &scheduler)
 {
   int index;
@@ -297,7 +287,7 @@ void PlayChunkCommon(const int thrId,
     if (index == -1)
       break;
 
-    PlaySingleCommon(thrId, index);
+    PlaySingleCommon(param, thrId, index);
   }
 }
 
@@ -310,22 +300,16 @@ int STDCALL AnalyseAllPlaysBin(
 {
   UNUSED(chunkSize);
 
-  playparam.error = 0;
-
   if (bop->noOfBoards > MAXNOOFBOARDS)
     return RETURN_TOO_MANY_BOARDS;
 
   if (bop->noOfBoards != plp->noOfBoards)
     return RETURN_UNKNOWN_FAULT;
 
-  playparam.bop = bop;
-  traceparam.plp = plp;
-  playparam.noOfBoards = bop->noOfBoards;
-  traceparam.noOfBoards = bop->noOfBoards;
-  traceparam.solvedp = solvedp;
+  playparamType playparam{bop, nullptr, 0, solvedp, plp};
 
   START_BLOCK_TIMER;
-  int retRun = sysdep.RunThreads(DDS_RUN_TRACE, *bop, *plp);
+  int retRun = sysdep.RunThreads(playparam, DDS_RUN_TRACE, *bop, *plp);
   END_BLOCK_TIMER;
 
   if (retRun != RETURN_NO_FAULT)
@@ -410,7 +394,7 @@ void DetectPlayDuplicates(
 }
 
 
-void CopyPlaySingle(const vector<int>& crossrefs)
+void CopyPlaySingle(paramType &, const vector<int>& crossrefs)
 {
   UNUSED(crossrefs);
 }

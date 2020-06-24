@@ -160,28 +160,30 @@ bool System::ThreadOK(const int thrId) const
 //                          Threading                               //
 //////////////////////////////////////////////////////////////////////
 
-void System::WorkerSTLAsync(fptrType fptr, Scheduler &scheduler)
+void System::WorkerSTLAsync(paramType &param, fptrType fptr, Scheduler &scheduler)
 {
   auto threadId = threadMgr.Occupy();
-  fptr(threadId, scheduler);
+  fptr(param, threadId, scheduler);
 }
 
-int System::RunThreadsSTLAsync(RunMode runCat, Scheduler &scheduler)
+int System::RunThreadsSTLAsync(paramType &param, RunMode runCat, Scheduler &scheduler)
 {
   auto fptr = CallbackSimpleList[runCat];
 
   std::vector<std::future<void>> futures;
   std::vector<int> uniques;
   std::vector<int> crossrefs;
-  (* CallbackDuplList[runCat])(*scheduler.GetBOP(), uniques, crossrefs);
+  (* CallbackDuplList[runCat])(*param.bop, uniques, crossrefs);
 
   const unsigned nu = static_cast<unsigned>(numThreads);
   futures.reserve(nu);
   // Launch first worker as deferred to allow it run in same thread
   futures.push_back(std::async(std::launch::deferred,
-        &System::WorkerSTLAsync, this));
-  for (unsigned k = 0; k < nu; k++)
-    futures.push_back(std::async(&System::WorkerSTLAsync, this, fptr, std::ref(scheduler)));
+        &System::WorkerSTLAsync, this,
+        std::ref(param), fptr, std::ref(scheduler)));
+  for (unsigned k = 1; k < nu; k++)
+    futures.push_back(std::async(&System::WorkerSTLAsync, this,
+          std::ref(param), fptr, std::ref(scheduler)));
 
   for (auto& f: futures)
     f.wait();
@@ -189,21 +191,21 @@ int System::RunThreadsSTLAsync(RunMode runCat, Scheduler &scheduler)
   return RETURN_NO_FAULT;
 }
 
-int System::RunThreads(
+int System::RunThreads(playparamType &param,
     RunMode runCat,
     const boards& bop,
     const playTracesBin& pl)
 {
   Scheduler scheduler{numThreads, runCat, bop, pl};
 
-  return RunThreadsSTLAsync(runCat, scheduler);
+  return RunThreadsSTLAsync(param, runCat, scheduler);
 }
 
-int System::RunThreads(RunMode runCat, const boards& bop)
+int System::RunThreads(paramType &param, RunMode runCat, const boards& bop)
 {
   Scheduler scheduler{numThreads, runCat, bop};
 
-  return RunThreadsSTLAsync(runCat, scheduler);
+  return RunThreadsSTLAsync(param, runCat, scheduler);
 }
 
 

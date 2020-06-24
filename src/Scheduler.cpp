@@ -30,8 +30,7 @@ Scheduler::Scheduler(
 Scheduler::Scheduler(
     const int nThreads,
     const enum RunMode mode,
-    const boards& bds) :
-  bop{&bds}
+    const boards& bds)
 {
   numHands = 0;
 

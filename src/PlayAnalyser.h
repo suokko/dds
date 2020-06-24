@@ -18,11 +18,11 @@ using namespace std;
 
 class Scheduler;
 
-void PlaySingleCommon(
+void PlaySingleCommon(paramType &param,
   const int thrId,
   const int bno);
 
-void PlayChunkCommon(
+void PlayChunkCommon(paramType &param,
   const int thrId,
   Scheduler &scheduler);
 
@@ -31,7 +31,7 @@ void DetectPlayDuplicates(
   vector<int>& uniques,
   vector<int>& crossrefs);
 
-void CopyPlaySingle(
+void CopyPlaySingle(paramType &,
   const vector<int>& crossrefs);
 
 #endif

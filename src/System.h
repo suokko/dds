@@ -28,11 +28,11 @@ using namespace std;
 
 class Scheduler;
 
-typedef void (*fptrType)(const int thid, Scheduler &scheduler);
+typedef void (*fptrType)(paramType &param, const int thid, Scheduler &scheduler);
 typedef void (*fduplType)(
   const boards& bds, vector<int>& uniques, vector<int>& crossrefs);
-typedef void (*fsingleType)(const int thid, const int bno);
-typedef void (*fcopyType)(const vector<int>& crossrefs);
+typedef void (*fsingleType)(paramType &param, const int thid, const int bno);
+typedef void (*fcopyType)(paramType &param, const vector<int>& crossrefs);
 
 
 class System
@@ -65,9 +65,9 @@ class System
 
     ThreadMgr threadMgr;
 
-    int RunThreadsSTLAsync(RunMode runCat, Scheduler &scheduler);
+    int RunThreadsSTLAsync(paramType &param, RunMode runCat, Scheduler &scheduler);
 
-    void WorkerSTLAsync(fptrType, Scheduler &);
+    void WorkerSTLAsync(paramType &param, fptrType, Scheduler &);
 
     string GetVersion(
       int& major,
@@ -100,11 +100,11 @@ class System
       int& ncores,
       unsigned long long& kilobytesFree) const;
 
-    int RunThreads(
+    int RunThreads(paramType &param,
         const RunMode r,
         const boards& bop);
 
-    int RunThreads(
+    int RunThreads(playparamType &param,
         const RunMode r,
         const boards& bop,
         const playTracesBin& pl);

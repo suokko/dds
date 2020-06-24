@@ -17,8 +17,6 @@
 #include "debug.h"
 
 
-paramType param;
-
 extern System sysdep;
 extern Memory memory;
 
@@ -32,7 +30,7 @@ bool SameBoard(
   const unsigned index2);
 
 
-void SolveSingleCommon(
+void SolveSingleCommon(paramType &param,
   const int thrId,
   const int bno)
 {
@@ -55,7 +53,7 @@ void SolveSingleCommon(
 }
 
 
-void CopySolveSingle(const vector<int>& crossrefs)
+void CopySolveSingle(paramType &param, const vector<int>& crossrefs)
 {
   for (unsigned i = 0; i < crossrefs.size(); i++)
   {
@@ -70,7 +68,7 @@ void CopySolveSingle(const vector<int>& crossrefs)
 }
 
 
-void SolveChunkCommon(
+void SolveChunkCommon(paramType &param,
   const int thrId,
   Scheduler &scheduler)
 {
@@ -94,14 +92,14 @@ void SolveChunkCommon(
         param.bop->deals[st.repeatOf].first)
     {
       START_THREAD_TIMER(thrId);
-      param.solvedp->solvedBoard[index] = 
+      param.solvedp->solvedBoard[index] =
         param.solvedp->solvedBoard[st.repeatOf];
       END_THREAD_TIMER(thrId);
       continue;
     }
     else
     {
-      SolveSingleCommon(thrId, index);
+      SolveSingleCommon(param, thrId, index);
     }
   }
 }
@@ -111,26 +109,24 @@ int SolveAllBoardsN(
   boards& bds,
   solvedBoards& solved)
 {
-  param.error = 0;
 
   if (bds.noOfBoards > MAXNOOFBOARDS)
     return RETURN_TOO_MANY_BOARDS;
 
-  param.bop = &bds;
-  param.solvedp = &solved;
-  param.noOfBoards = bds.noOfBoards;
+  paramType param{&bds, &solved, 0};
+
 
   for (int k = 0; k < MAXNOOFBOARDS; k++)
     solved.solvedBoard[k].cards = 0;
 
   START_BLOCK_TIMER;
-  int retRun = sysdep.RunThreads(DDS_RUN_SOLVE, bds);
+  int retRun = sysdep.RunThreads(param, DDS_RUN_SOLVE, bds);
   END_BLOCK_TIMER;
 
   if (retRun != RETURN_NO_FAULT)
     return retRun;
 
-  solved.noOfBoards = param.noOfBoards;
+  solved.noOfBoards = bds.noOfBoards;
 
   if (param.error == 0)
     return RETURN_NO_FAULT;

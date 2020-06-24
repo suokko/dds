@@ -86,8 +86,6 @@ class Scheduler
 #endif
     };
 
-    const boards *bop;
-
     handType hands[MAXNOOFBOARDS];
 
     groupType group[MAXNOOFBOARDS];
@@ -172,9 +170,6 @@ class Scheduler
     schedType GetNumber(const int thrId);
 
     int NumGroups() const;
-
-    const boards* GetBOP() const
-    {return bop;}
 
 #ifdef DDS_SCHEDULER
     void StartThreadTimer(const int thrId);

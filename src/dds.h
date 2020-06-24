@@ -154,10 +154,26 @@ struct relRanksType // 120 bytes
 
 struct paramType
 {
-  int noOfBoards;
   boards * bop;
   solvedBoards * solvedp;
   int error;
+};
+
+struct playparamType : public paramType
+{
+  playparamType(
+      boards *b,
+      solvedBoards *sb,
+      int e,
+      solvedPlays *sp,
+      playTracesBin *p) :
+    paramType{b, sb, e},
+    solvedplays{sp},
+    plp{p}
+  {}
+
+  solvedPlays *solvedplays;
+  playTracesBin *plp;
 };
 
 enum RunMode

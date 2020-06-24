@@ -18,14 +18,14 @@ using namespace std;
 
 class Scheduler;
 
-void SolveSingleCommon(
+void SolveSingleCommon(paramType &param,
   const int thrId,
   const int bno);
 
-void CopySolveSingle(
+void CopySolveSingle(paramType &param,
   const vector<int>& crossrefs);
 
-void SolveChunkCommon(
+void SolveChunkCommon(paramType &param,
   const int thrId,
   Scheduler &scheduler);
 

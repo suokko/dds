@@ -17,8 +17,6 @@
 #include "PBN.h"
 
 
-paramType cparam;
-
 extern System sysdep;
 extern Memory memory;
 
@@ -27,7 +25,7 @@ int CalcAllBoardsN(
   solvedBoards * solvedp);
 
 
-void CalcSingleCommon(
+void CalcSingleCommon(paramType &cparam,
   const int thrId,
   const int bno)
 {
@@ -70,7 +68,7 @@ void CalcSingleCommon(
 }
 
 
-void CopyCalcSingle(const vector<int>& crossrefs)
+void CopyCalcSingle(paramType &cparam, const vector<int>& crossrefs)
 {
   for (unsigned i = 0; i < crossrefs.size(); i++)
   {
@@ -79,20 +77,20 @@ void CopyCalcSingle(const vector<int>& crossrefs)
 
     START_THREAD_TIMER(thrId);
     for (int k = 0; k < DDS_HANDS; k++)
-      cparam.solvedp->solvedBoard[i].score[k] = 
+      cparam.solvedp->solvedBoard[i].score[k] =
         cparam.solvedp->solvedBoard[ crossrefs[i] ].score[k];
     END_THREAD_TIMER(thrId);
   }
 }
 
 
-void CalcChunkCommon(
+void CalcChunkCommon(paramType &cparam,
   const int thrId,
   Scheduler &scheduler)
 {
   // Solves each deal and strain for all four declarers.
   vector<futureTricks> fut;
-  fut.resize(static_cast<unsigned>(cparam.noOfBoards));
+  fut.resize(static_cast<unsigned>(cparam.bop->noOfBoards));
 
   int index;
   schedType st;
@@ -118,7 +116,7 @@ void CalcChunkCommon(
       continue;
     }
 
-    CalcSingleCommon(thrId, index);
+    CalcSingleCommon(cparam, thrId, index);
   }
 }
 
@@ -127,26 +125,23 @@ int CalcAllBoardsN(
   boards * bop,
   solvedBoards * solvedp)
 {
-  cparam.error = 0;
 
   if (bop->noOfBoards > MAXNOOFBOARDS)
     return RETURN_TOO_MANY_BOARDS;
 
-  cparam.bop = bop;
-  cparam.solvedp = solvedp;
-  cparam.noOfBoards = bop->noOfBoards;
+  paramType cparam{bop, solvedp, 0};
 
   for (int k = 0; k < MAXNOOFBOARDS; k++)
     solvedp->solvedBoard[k].cards = 0;
 
   START_BLOCK_TIMER;
-  int retRun = sysdep.RunThreads(DDS_RUN_CALC, * bop);
+  int retRun = sysdep.RunThreads(cparam, DDS_RUN_CALC, * bop);
   END_BLOCK_TIMER;
 
   if (retRun != RETURN_NO_FAULT)
     return retRun;
 
-  solvedp->noOfBoards = cparam.noOfBoards;
+  solvedp->noOfBoards = bop->noOfBoards;
 
   if (cparam.error == 0)
     return RETURN_NO_FAULT;
