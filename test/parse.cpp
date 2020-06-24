@@ -17,86 +17,84 @@
 #include "portab.h"
 #include "parse.h"
 
-using namespace std;
 
-
-bool parse_PBN(
-  const vector<string>& list,
+bool parse_PBN(std::ostream &out,
+  const std::vector<std::string>& list,
   int& dealer,
   int& vul,
   dealPBN * dl);
 
-bool parse_FUT(
-  const vector<string>& list,
+bool parse_FUT(std::ostream &out,
+  const std::vector<std::string>& list,
   futureTricks * fut);
 
-bool parse_TABLE(
-  const vector<string>& list,
+bool parse_TABLE(std::ostream &out,
+  const std::vector<std::string>& list,
   ddTableResults * table);
 
-bool parse_PAR(
-  const vector<string>& list,
+bool parse_PAR(std::ostream &out,
+  const std::vector<std::string>& list,
   parResults * par);
 
-bool parse_DEALERPAR(
-  const vector<string>& list,
+bool parse_DEALERPAR(std::ostream &out,
+  const std::vector<std::string>& list,
   parResultsDealer * par);
 
-bool parse_PLAY(
-  const vector<string>& list,
+bool parse_PLAY(std::ostream &out,
+  const std::vector<std::string>& list,
   playTracePBN * play);
 
-bool parse_TRACE(
-  const vector<string>& list,
+bool parse_TRACE(std::ostream &out,
+  const std::vector<std::string>& list,
   solvedPlay * solved);
 
-bool parseable_GIB(const string& line);
+bool parseable_GIB(const std::string& line);
 
 bool parse_GIB(
-  const string& line,
+  const std::string& line,
   dealPBN * dl,
   ddTableResults * table);
 
-bool get_any_line(
-  ifstream& fin,
-  vector<string>& list,
-  const string& tag,
+bool get_any_line(std::ostream &out,
+  std::ifstream& fin,
+ std::vector<std::string>& list,
+  const std::string& tag,
   const int n);
 
-bool get_head_element(
-  const string& elem,
-  const string& expected);
+bool get_head_element(std::ostream &out,
+  const std::string& elem,
+  const std::string& expected);
 
-bool get_int_element(
-  const string& elem,
+bool get_int_element(std::ostream &out,
+  const std::string& elem,
   int& res,
-  const string& errtext);
+  const std::string& errtext);
 
-bool strip_quotes(
-  const string& st,
+bool strip_quotes(std::ostream &out,
+  const std::string& st,
   char * cstr,
-  const string& errtag);
+  const std::string& errtag);
 
-bool strip_quotes(
-  const string& st,
+bool strip_quotes(std::ostream &out,
+  const std::string& st,
   int& res,
-  const string& errtag);
+  const std::string& errtag);
 
-string trimTrailing(
-  const string& st,
+std::string trimTrailing(
+  const std::string& st,
   const char c);
 
 void splitIntoWords(
-  const string& text,
-  vector<string>& words);
+  const std::string& text,
+ std::vector<std::string>& words);
 
 bool str2int(
-  const string& text,
+  const std::string& text,
   int& res);
 
 
-bool read_file(
-  const string& fname,
+bool read_file(std::ostream &out,
+  const std::string& fname,
   int& number,
   bool& GIBmode,
   int ** dealer_list,
@@ -109,37 +107,37 @@ bool read_file(
   playTracePBN ** play_list,
   solvedPlay ** trace_list)
 {
-  ifstream fin;
+  std::ifstream fin;
   fin.open(fname);
 
-  string line;
+  std::string line;
   if (! getline(fin, line))
   {
-    cout << "First line bad: '" << line << "'" << endl;
+    out << "First line bad: '" << line << "'" << std::endl;
     return false;
   }
 
-  vector<string> list;
+ std::vector<std::string> list;
   list.clear();
   splitIntoWords(line, list);
 
-  if (list.size() == 2 && get_head_element(list[0], "NUMBER"))
+  if (list.size() == 2 && get_head_element(out, list[0], "NUMBER"))
   {
     // Hopefully a txt-style file.
     if (! str2int(list[1], number))
     {
-      cout << "Not a number of hands: '" << list[1] << "'" << endl;
+      out << "Not a number of hands: '" << list[1] << "'" << std::endl;
       return false;
     }
     else if (number <= 0 || number > 100000)
     {
-      cout << "Suspect number of hands: " << number << endl;
+      out << "Suspect number of hands: " << number << std::endl;
       return false;
     }
   }
   else if (! parseable_GIB(line))
   {
-    cout << "Not a GIB-style start: '" << line << "'" << endl;
+    out << "Not a GIB-style start: '" << line << "'" << std::endl;
     return false;
   }
   else
@@ -204,7 +202,7 @@ bool read_file(
     {
       if (! getline(fin, line))
       {
-        cout << "Expected GIB line " << n << endl;
+        out << "Expected GIB line " << n << std::endl;
         return false;
       }
       if (! parse_GIB(line, &(*deal_list)[n], &(*table_list)[n]))
@@ -215,40 +213,40 @@ bool read_file(
   {
     for (int n = 0; n < number; n++)
     {
-      if (! get_any_line(fin, list, "PBN", n))
+      if (! get_any_line(out, fin, list, "PBN", n))
         return false;
-      if (! parse_PBN(list, (*dealer_list)[n], 
-          (*vul_list)[n], &(*deal_list)[n])) 
-        return false;
-
-      if (! get_any_line(fin, list, "FUT", n))
-        return false;
-      if (! parse_FUT(list, &(*fut_list)[n]))
+      if (! parse_PBN(out, list, (*dealer_list)[n],
+          (*vul_list)[n], &(*deal_list)[n]))
         return false;
 
-      if (! get_any_line(fin, list, "TABLE", n))
+      if (! get_any_line(out, fin, list, "FUT", n))
         return false;
-      if (! parse_TABLE(list, &(*table_list)[n])) 
-        return false;
-
-      if (! get_any_line(fin, list, "PAR", n))
-        return false;
-      if (! parse_PAR(list, &(*par_list)[n])) 
+      if (! parse_FUT(out, list, &(*fut_list)[n]))
         return false;
 
-      if (! get_any_line(fin, list, "DEALERPAR", n))
+      if (! get_any_line(out, fin, list, "TABLE", n))
         return false;
-      if (! parse_DEALERPAR(list, &(*dealerpar_list)[n]))
-        return false;
-
-      if (! get_any_line(fin, list, "PLAY", n))
-        return false;
-      if (! parse_PLAY(list, &(*play_list)[n]))
+      if (! parse_TABLE(out, list, &(*table_list)[n]))
         return false;
 
-      if (! get_any_line(fin, list, "TRACE", n))
+      if (! get_any_line(out, fin, list, "PAR", n))
         return false;
-      if (! parse_TRACE(list, &(*trace_list)[n]))
+      if (! parse_PAR(out, list, &(*par_list)[n]))
+        return false;
+
+      if (! get_any_line(out, fin, list, "DEALERPAR", n))
+        return false;
+      if (! parse_DEALERPAR(out, list, &(*dealerpar_list)[n]))
+        return false;
+
+      if (! get_any_line(out, fin, list, "PLAY", n))
+        return false;
+      if (! parse_PLAY(out, list, &(*play_list)[n]))
+        return false;
+
+      if (! get_any_line(out, fin, list, "TRACE", n))
+        return false;
+      if (! parse_TRACE(out, list, &(*trace_list)[n]))
         return false;
     }
   }
@@ -258,27 +256,27 @@ bool read_file(
 }
 
 
-bool parse_PBN(
-  const vector<string>& list,
+bool parse_PBN(std::ostream &out,
+  const std::vector<std::string>& list,
   int& dealer,
   int& vul,
   dealPBN * dl)
 {
   if (list.size() != 9)
   {
-    cout << "PBN list does not have 9 elements: " << list.size() << "\n";
+    out << "PBN list does not have 9 elements: " << list.size() << "\n";
     return false;
   }
 
-  if (! get_head_element(list[0], "PBN"))
+  if (! get_head_element(out, list[0], "PBN"))
     return false;
-  if (! get_int_element(list[1], dealer, "PBN dealer failed"))
+  if (! get_int_element(out, list[1], dealer, "PBN dealer failed"))
     return false;
-  if (! get_int_element(list[2], vul, "PBN vul failed"))
+  if (! get_int_element(out, list[2], vul, "PBN vul failed"))
     return false;
-  if (! get_int_element(list[3], dl->trump, "PBN trump failed"))
+  if (! get_int_element(out, list[3], dl->trump, "PBN trump failed"))
     return false;
-  if (! get_int_element(list[4], dl->first, "PBN trump failed"))
+  if (! get_int_element(out, list[4], dl->first, "PBN trump failed"))
     return false;
 
   for (int i = 0; i < 3; i++)
@@ -287,75 +285,75 @@ bool parse_PBN(
     dl->currentTrickRank[i] = 0;
   }
 
-  if (! strip_quotes(
+  if (! strip_quotes(out,
       list[5] + " " + list[6] + " " + list[7] + " " + list[8],
-      dl->remainCards, "PBN string"))
+      dl->remainCards, "PBN std::string"))
     return false;
 
   return true;
 }
 
 
-bool parse_FUT(
-  const vector<string>& list,
+bool parse_FUT(std::ostream &out,
+  const std::vector<std::string>& list,
   futureTricks * fut)
 {
   if (list.size() < 2)
   {
-    cout << "PBN list does not have 2+ elements: " << list.size() << endl;
+    out << "PBN list does not have 2+ elements: " << list.size() << std::endl;
     return false;
   }
 
-  if (! get_head_element(list[0], "FUT"))
+  if (! get_head_element(out, list[0], "FUT"))
     return false;
-  if (! get_int_element(list[1], fut->cards, "FUT cards"))
+  if (! get_int_element(out, list[1], fut->cards, "FUT cards"))
     return false;
 
   if (static_cast<int>(list.size()) != 4 * fut->cards + 2)
   {
-    cout << "PBN list does not have right length: " << list.size() << endl;
+    out << "PBN list does not have right length: " << list.size() << std::endl;
     return false;
   }
 
   const unsigned nu = static_cast<unsigned>(fut->cards);
   for (unsigned c = 0; c < nu; c++)
-    if (! get_int_element(list[c+2], fut->suit[c], "FUT suit"))
+    if (! get_int_element(out, list[c+2], fut->suit[c], "FUT suit"))
       return false;
 
   for (unsigned c = 0; c < nu; c++)
-    if (! get_int_element(list[c+nu+2], fut->rank[c], "FUT rank"))
+    if (! get_int_element(out, list[c+nu+2], fut->rank[c], "FUT rank"))
       return false;
 
   for (unsigned c = 0; c < nu; c++)
-    if (! get_int_element(list[c+2*nu+2], fut->equals[c], "FUT equals"))
+    if (! get_int_element(out, list[c+2*nu+2], fut->equals[c], "FUT equals"))
       return false;
 
   for (unsigned c = 0; c < nu; c++)
-    if (! get_int_element(list[c+3*nu+2], fut->score[c], "FUT score"))
+    if (! get_int_element(out, list[c+3*nu+2], fut->score[c], "FUT score"))
       return false;
 
   return true;
 }
 
 
-bool parse_TABLE(
-  const vector<string>& list,
+bool parse_TABLE(std::ostream &out,
+  const std::vector<std::string>& list,
   ddTableResults * table)
 {
   if (list.size() != 21)
   {
-    cout << "Table list does not have 21 elements: " << list.size() << endl;
+    out << "Table list does not have 21 elements: " << list.size() << std::endl;
     return false;
   }
 
-  if (! get_head_element(list[0], "TABLE"))
+  if (! get_head_element(out, list[0], "TABLE"))
     return false;
 
   for (unsigned suit = 0; suit < DDS_STRAINS; suit++)
   {
     for (unsigned pl = 0; pl < DDS_HANDS; pl++)
     {
-      if (! get_int_element(list[DDS_HANDS * suit + pl + 1],
+      if (! get_int_element(out, list[DDS_HANDS * suit + pl + 1],
           table->resTable[suit][pl], "TABLE entry"))
         return false;
     }
@@ -365,29 +363,29 @@ bool parse_TABLE(
 }
 
 
-bool parse_PAR(
-  const vector<string>& list,
+bool parse_PAR(std::ostream &out,
+  const std::vector<std::string>& list,
   parResults * par)
 {
   if (list.size() < 9)
   {
-    cout << "PAR list does not have 9+ elements: " << list.size() << endl;
+    out << "PAR list does not have 9+ elements: " << list.size() << std::endl;
     return false;
   }
 
-  if (! get_head_element(list[0], "PAR"))
+  if (! get_head_element(out, list[0], "PAR"))
     return false;
 
-  if (! strip_quotes(list[1] + " " + list[2], par->parScore[0], 
+  if (! strip_quotes(out, list[1] + " " + list[2], par->parScore[0],
       "PAR score 0"))
     return false;
 
-  if (! strip_quotes(list[3] + " " + list[4], par->parScore[1], 
+  if (! strip_quotes(out, list[3] + " " + list[4], par->parScore[1],
       "PAR score 1"))
     return false;
 
   unsigned i = 5;
-  string st = "";
+  std::string st = "";
   while (i < list.size())
   {
     st += " " + list[i++];
@@ -395,7 +393,7 @@ bool parse_PAR(
       break;
   }
 
-  if (! strip_quotes(st.substr(1), par->parContractsString[0], 
+  if (! strip_quotes(out, st.substr(1), par->parContractsString[0],
       "PAR contract 0"))
     return false;
 
@@ -407,7 +405,7 @@ bool parse_PAR(
       break;
   }
 
-  if (! strip_quotes(st.substr(1), par->parContractsString[1], 
+  if (! strip_quotes(out, st.substr(1), par->parContractsString[1],
       "PAR contract 1"))
     return false;
 
@@ -415,27 +413,27 @@ bool parse_PAR(
 }
 
 
-bool parse_DEALERPAR(
-  const vector<string>& list,
+bool parse_DEALERPAR(std::ostream &out,
+  const std::vector<std::string>& list,
   parResultsDealer * par)
 {
   const size_t l = list.size();
   if (l < 3)
   {
-    cout << "PAR2 list does not have 3+ elements: " << l << endl;
+    out << "PAR2 list does not have 3+ elements: " << l << std::endl;
     return false;
   }
 
-  if (! get_head_element(list[0], "PAR2"))
+  if (! get_head_element(out, list[0], "PAR2"))
     return false;
 
-  if (! strip_quotes(list[1], par->score, "PBN string"))
+  if (! strip_quotes(out, list[1], par->score, "PBN std::string"))
     return false;
 
   unsigned no = 0;
   while (no+2 < l)
   {
-    if (! strip_quotes(list[no+2], par->contracts[no], "PAR2 contract"))
+    if (! strip_quotes(out, list[no+2], par->contracts[no], "PAR2 contract"))
       break;
     no++;
   }
@@ -445,54 +443,54 @@ bool parse_DEALERPAR(
 }
 
 
-bool parse_PLAY(
-  const vector<string>& list,
+bool parse_PLAY(std::ostream &out,
+  const std::vector<std::string>& list,
   playTracePBN * playp)
 {
   if (list.size() != 3)
   {
-    cout << "PLAY list does not have 3 elements: " << list.size() << endl;
+    out << "PLAY list does not have 3 elements: " << list.size() << std::endl;
     return false;
   }
 
-  if (! get_head_element(list[0], "PLAY"))
+  if (! get_head_element(out, list[0], "PLAY"))
     return false;
 
-  if (! get_int_element(list[1], playp->number, "PLAY number"))
+  if (! get_int_element(out, list[1], playp->number, "PLAY number"))
     return false;
 
-  if (! strip_quotes(list[2], playp->cards, "PLAY string"))
+  if (! strip_quotes(out, list[2], playp->cards, "PLAY std::string"))
     return false;
 
   return true;
 }
 
 
-bool parse_TRACE(
-  const vector<string>& list,
+bool parse_TRACE(std::ostream &out,
+  const std::vector<std::string>& list,
   solvedPlay * solvedp)
 {
   if (list.size() < 2)
   {
-    cout << "TRACE list does not have 2+ elements: " << list.size() << endl;
+    out << "TRACE list does not have 2+ elements: " << list.size() << std::endl;
     return false;
   }
 
-  if (! get_head_element(list[0], "TRACE"))
+  if (! get_head_element(out, list[0], "TRACE"))
     return false;
 
-  if (! get_int_element(list[1], solvedp->number, "TRACE number"))
+  if (! get_int_element(out, list[1], solvedp->number, "TRACE number"))
     return false;
 
   for (unsigned i = 0; i < static_cast<unsigned>(solvedp->number); i++)
-    if (! get_int_element(list[2+i], solvedp->tricks[i], "TRACE element"))
+    if (! get_int_element(out, list[2+i], solvedp->tricks[i], "TRACE element"))
       return false;
 
   return true;
 }
 
 
-bool parseable_GIB(const string& line)
+bool parseable_GIB(const std::string& line)
 {
   if (line.size() != 88)
     return false;
@@ -506,11 +504,11 @@ bool parseable_GIB(const string& line)
 int GIB_TO_DDS[4] = {1, 0, 3, 2};
 
 bool parse_GIB(
-  const string& line,
-  dealPBN * dl, 
+  const std::string& line,
+  dealPBN * dl,
   ddTableResults * table)
 {
-  string st = "W:" + line.substr(0, 67);
+  std::string st = "W:" + line.substr(0, 67);
   strcpy(dl->remainCards, st.c_str());
 
   int dds_strain, dds_hand;
@@ -540,16 +538,16 @@ bool parse_GIB(
 }
 
 
-bool get_any_line(
-  ifstream& fin,
-  vector<string>& list,
-  const string& tag,
+bool get_any_line(std::ostream &out,
+  std::ifstream& fin,
+ std::vector<std::string>& list,
+  const std::string& tag,
   const int n)
 {
-  string line;
+  std::string line;
   if (! getline(fin, line))
   {
-    cout << "Expected txt " << tag << " line " << n << endl;
+    out << "Expected txt " << tag << " line " << n << std::endl;
     return false;
   }
 
@@ -559,14 +557,14 @@ bool get_any_line(
 }
 
 
-bool get_head_element(
-  const string& elem,
-  const string& expected)
+bool get_head_element(std::ostream &out,
+  const std::string& elem,
+  const std::string& expected)
 {
   if (elem != expected)
   {
-    cout << "PBN list does not start with " << expected << 
-      ": '" << elem << "'" << endl;
+    out << "PBN list does not start with " << expected <<
+      ": '" << elem << "'" << std::endl;
     return false;
   }
   else
@@ -574,14 +572,14 @@ bool get_head_element(
 }
 
 
-bool get_int_element(
-  const string& elem,
+bool get_int_element(std::ostream &out,
+  const std::string& elem,
   int& res,
-  const string& errtext)
+  const std::string& errtext)
 {
   if (! str2int(elem, res))
   {
-    cout << errtext << ": '" << elem << "'\n";
+    out << errtext << ": '" << elem << "'\n";
     return false;
   }
   else
@@ -589,10 +587,10 @@ bool get_int_element(
 }
 
 
-bool strip_quotes(
-  const string& st,
+bool strip_quotes(std::ostream &out,
+  const std::string& st,
   char * cstr,
-  const string& errtag)
+  const std::string& errtag)
 {
   // Could just be past the last one.
   if (st.size() == 0)
@@ -600,7 +598,7 @@ bool strip_quotes(
 
   if (st.front() != '\"' || st.back() != '\"')
   {
-    cout << errtag << " not in quotations: '" << st << "'\n";
+    out << errtag << " not in quotations: '" << st << "'\n";
     return false;
   }
   strcpy(cstr, st.substr(1, st.size()-2).c_str());
@@ -608,20 +606,20 @@ bool strip_quotes(
 }
 
 
-bool strip_quotes(
-  const string& st,
+bool strip_quotes(std::ostream &out,
+  const std::string& st,
   int& res,
-  const string& errtag)
+  const std::string& errtag)
 {
   if (st.front() != '\"' || st.back() != '\"')
   {
-    cout << errtag << " not in quotations: '" << st << "'" << endl;
+    out << errtag << " not in quotations: '" << st << "'" << std::endl;
     return false;
   }
 
   if (! str2int(st.substr(1, st.size()-2).c_str(), res))
   {
-    cout << st << " not an int" << endl;
+    out << st << " not an int" << std::endl;
     return false;
   }
 
@@ -629,8 +627,8 @@ bool strip_quotes(
 }
 
 
-string trimTrailing(
-  const string& text,
+std::string trimTrailing(
+  const std::string& text,
   const char c)
 {
   unsigned pos = static_cast<unsigned>(text.length());
@@ -645,8 +643,8 @@ string trimTrailing(
 
 
 void splitIntoWords(
-  const string& text,
-  vector<string>& words)
+  const std::string& text,
+ std::vector<std::string>& words)
 {
   // Split into words (split on \s+, effectively).
   unsigned pos = 0;
@@ -655,7 +653,7 @@ void splitIntoWords(
 
   // It seems compilers have different ideas about files.
   const size_t tl = text.length();
-  string ttext;
+  std::string ttext;
   if (text.back() == ' ')
     ttext = text.substr(0, tl-1);
   else if (text.at(tl-2) == ' ')
@@ -689,7 +687,7 @@ void splitIntoWords(
 
 
 bool str2int(
-  const string& text,
+  const std::string& text,
   int& res)
 {
   int i;
@@ -701,12 +699,12 @@ bool str2int(
       return false;
 
   }
-  catch (const invalid_argument& ia)
+  catch (const std::invalid_argument& ia)
   {
     UNUSED(ia);
     return false;
   }
-  catch (const out_of_range& ia)
+  catch (const std::out_of_range& ia)
   {
     UNUSED(ia);
     return false;

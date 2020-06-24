@@ -11,5 +11,6 @@ execute_process(COMMAND ${CMD}
     RESULT_VARIABLE RES)
 
 if (NOT RES EQUAL 0)
-    message(FATAL_ERROR)
+    list(JOIN CMD " " COMM)
+    message(FATAL_ERROR "Command line: ${COMM}")
 endif ()

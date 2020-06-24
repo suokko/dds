@@ -20,7 +20,7 @@ static unsigned short dbitMapRank[16];
 static unsigned char dcardRank[16];
 static unsigned char dcardSuit[5];
 
-string equals_to_string(const int equals);
+std::string equals_to_string(const int equals);
 
 
 void set_constants()
@@ -65,37 +65,37 @@ void set_constants()
 }
 
 
-void print_PBN(const dealPBN& dl)
+void print_PBN(std::ostream &out, const dealPBN& dl)
 {
-  cout << setw(10) << left << "trump" << dl.trump << "\n";
-  cout << setw(10) << "first" << dl.first << "\n";
-  cout << setw(10) << "cards" << dl.remainCards << "\n";
+  out << std::setw(10) << std::left << "trump" << dl.trump << "\n";
+  out << std::setw(10) << "first" << dl.first << "\n";
+  out << std::setw(10) << "cards" << dl.remainCards << "\n";
 }
 
 
-void print_FUT(const futureTricks& fut)
+void print_FUT(std::ostream &out, const futureTricks& fut)
 {
-  cout << setw(6) << left << "cards" << fut.cards << "\n";
-  cout << setw(6) << right <<  "No." << 
-    setw(7) << "suit" <<
-    setw(7) << "rank" <<
-    setw(7) << "equals" <<
-    setw(7) << "score" << "\n";
+  out << std::setw(6) << std::left << "cards" << fut.cards << "\n";
+  out << std::setw(6) << std::right <<  "No." <<
+    std::setw(7) << "suit" <<
+    std::setw(7) << "rank" <<
+    std::setw(7) << "equals" <<
+    std::setw(7) << "score" << "\n";
 
   for (int i = 0; i < fut.cards; i++)
   {
-    cout << setw(6) << right << i <<
-      setw(7) << dcardSuit[ fut.suit[i] ] <<
-      setw(7) << dcardRank[ fut.rank[i] ] <<
-      setw(7) << equals_to_string(fut.equals[i]) <<
-      setw(7) << fut.score[i] << "\n";
+    out << std::setw(6) << std::right << i <<
+      std::setw(7) << dcardSuit[ fut.suit[i] ] <<
+      std::setw(7) << dcardRank[ fut.rank[i] ] <<
+      std::setw(7) << equals_to_string(fut.equals[i]) <<
+      std::setw(7) << fut.score[i] << "\n";
   }
 }
 
 
-string equals_to_string(const int equals)
+std::string equals_to_string(const int equals)
 {
-  string st = "";
+  std::string st = "";
   for (unsigned i = 15; i >= 2; i--)
   {
     if (equals & dbitMapRank[i])
@@ -105,97 +105,97 @@ string equals_to_string(const int equals)
 }
 
 
-void print_TABLE(const ddTableResults& table)
+void print_TABLE(std::ostream &out, const ddTableResults& table)
 {
-  cout << setw(5) << right << "" <<
-    setw(6) << "North" <<
-    setw(6) << "South" <<
-    setw(6) << "East" <<
-    setw(6) << "West" << "\n";
+  out << std::setw(5) << std::right << "" <<
+    std::setw(6) << "North" <<
+    std::setw(6) << "South" <<
+    std::setw(6) << "East" <<
+    std::setw(6) << "West" << "\n";
 
-  cout << setw(5) << right << "NT" <<
-    setw(6) << table.resTable[4][0] <<
-    setw(6) << table.resTable[4][2] <<
-    setw(6) << table.resTable[4][1] <<
-    setw(6) << table.resTable[4][3] << "\n";
+  out << std::setw(5) << std::right << "NT" <<
+    std::setw(6) << table.resTable[4][0] <<
+    std::setw(6) << table.resTable[4][2] <<
+    std::setw(6) << table.resTable[4][1] <<
+    std::setw(6) << table.resTable[4][3] << "\n";
 
   for (int suit = 0; suit <= 3; suit++)
   {
-    cout << setw(5) << right << dcardSuit[suit] <<
-      setw(6) << table.resTable[suit][0] <<
-      setw(6) << table.resTable[suit][2] <<
-      setw(6) << table.resTable[suit][1] <<
-      setw(6) << table.resTable[suit][3] << "\n";
+    out << std::setw(5) << std::right << dcardSuit[suit] <<
+      std::setw(6) << table.resTable[suit][0] <<
+      std::setw(6) << table.resTable[suit][2] <<
+      std::setw(6) << table.resTable[suit][1] <<
+      std::setw(6) << table.resTable[suit][3] << "\n";
   }
 }
 
 
-void print_PAR(const parResults& par)
+void print_PAR(std::ostream &out, const parResults& par)
 {
-  cout << setw(9) << left << "NS score" << par.parScore[0] << "\n";
-  cout << setw(9) << "EW score" << par.parScore[1] << "\n";
-  cout << setw(9) << "NS list" << par.parContractsString[0] << "\n";
-  cout << setw(9) << "EW list" << par.parContractsString[1] << "\n";
+  out << std::setw(9) << std::left << "NS score" << par.parScore[0] << "\n";
+  out << std::setw(9) << "EW score" << par.parScore[1] << "\n";
+  out << std::setw(9) << "NS list" << par.parContractsString[0] << "\n";
+  out << std::setw(9) << "EW list" << par.parContractsString[1] << "\n";
 }
 
 
-void print_DEALERPAR(const parResultsDealer& par)
+void print_DEALERPAR(std::ostream &out, const parResultsDealer& par)
 {
-  cout << setw(6) << left << "Score" << par.score << "\n";
-  cout << setw(6) << left << "Pars" << par.number << "\n";
+  out << std::setw(6) << std::left << "Score" << par.score << "\n";
+  out << std::setw(6) << std::left << "Pars" << par.number << "\n";
 
   for (int i = 0; i < par.number; i++)
-    cout << left << "Par " << setw(2) << i << par.contracts[i] << "\n";
+    out << std::left << "Par " << std::setw(2) << i << par.contracts[i] << "\n";
 }
 
 
-void print_PLAY(const playTracePBN& play)
+void print_PLAY(std::ostream &out, const playTracePBN& play)
 {
-  cout << setw(6) << right << "Number" << 
-    setw(5) << play.number << "\n";
+  out << std::setw(6) << std::right << "Number" <<
+    std::setw(5) << play.number << "\n";
 
   for (int i = 0; i < play.number; i++)
-     cout << setw(6) << i <<  "   " << 
+     out << std::setw(6) << i <<  "   " <<
        play.cards[2*i] << play.cards[2*i+1] << "\n";
 }
 
 
-void print_TRACE(const solvedPlay& solved)
+void print_TRACE(std::ostream &out, const solvedPlay& solved)
 {
-  cout << setw(6) << right << "Number" << 
-    setw(5) << solved.number << "\n";
+  out << std::setw(6) << std::right << "Number" <<
+    std::setw(5) << solved.number << "\n";
 
   for (int i = 0; i < solved.number; i++)
-     cout << setw(6) << i << 
-       setw(5) << solved.tricks[i] << "\n";
+     out << std::setw(6) << i <<
+       std::setw(5) << solved.tricks[i] << "\n";
 }
 
 
-void print_double_TRACE(
-  const solvedPlay& solved, 
+void print_double_TRACE(std::ostream &out,
+  const solvedPlay& solved,
   const solvedPlay& ref)
 {
-  cout << "Number solved vs ref: " << solved.number << " vs. " <<
+  out << "Number solved vs ref: " << solved.number << " vs. " <<
     ref.number << "\n";
 
-  const int m = min(solved.number, ref.number);
+  const int m = std::min(solved.number, ref.number);
   for (int i = 0; i < m; i++)
   {
-    cout << "Trick " << i << ": " << 
+    out << "Trick " << i << ": " <<
       solved.tricks[i] << " vs " <<
-      ref.tricks[i] << 
+      ref.tricks[i] <<
       (solved.tricks[i] == ref.tricks[i] ? "" : " ERROR") << "\n";
   }
 
   if (solved.number > m)
   {
     for (int i = m; i < solved.number; i++)
-      cout << "Solved " << i << ": " << solved.tricks[i] << "\n";
+      out << "Solved " << i << ": " << solved.tricks[i] << "\n";
   }
   else if (ref.number > m)
   {
     for (int i = m; i < ref.number; i++)
-      cout << "Ref    " << i << ": " << ref.tricks[i] << "\n";
+      out << "Ref    " << i << ": " << ref.tricks[i] << "\n";
   }
 }
 

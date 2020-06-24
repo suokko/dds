@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <iterator>
 #include <fstream>
 #include <vector>
 #include <algorithm>
@@ -24,30 +25,27 @@
 #include "args.h"
 #include "cst.h"
 
-using namespace std;
-
 
 extern OptionsType options;
 
 struct optEntry
 {
-  string shortName;
-  string longName;
+  std::string shortName;
+  std::string longName;
   unsigned numArgs;
 };
 
-#define DTEST_NUM_OPTIONS 5
+#define DTEST_NUM_OPTIONS 4
 
-const optEntry optList[DTEST_NUM_OPTIONS] =
+const std::array<optEntry, DTEST_NUM_OPTIONS> optList =
 {
-  {"f", "file", 1},
-  {"s", "solver", 1},
-  {"t", "threading", 1},
-  {"n", "numthr", 1},
-  {"m", "memory", 1}
+  optEntry{"f", "file", 1},
+  optEntry{"s", "solver", 1},
+  optEntry{"n", "numthr", 1},
+  optEntry{"m", "memory", 1}
 };
 
-const vector<string> solverList =
+const std::array<std::string, 5> solverList =
 {
   "solve",
   "calc",
@@ -56,22 +54,7 @@ const vector<string> solverList =
   "dealerpar"
 };
 
-const vector<string> threadingList =
-{
-  "none",
-  "WinAPI",
-  "OpenMP",
-  "GCD",
-  "Boost",
-  "STL",
-  "TBB",
-  "STLIMPL",
-  "PPLIMPL",
-  "STLAsync",
-  "default"
-};
-
-string shortOptsAll, shortOptsWithArg;
+std::string shortOptsAll, shortOptsWithArg;
 
 int GetNextArgToken(
   int argc,
@@ -85,24 +68,21 @@ bool ParseRound();
 void Usage(
   const char base[])
 {
-  string basename(base);
+  std::string basename(base);
   const size_t l = basename.find_last_of("\\/");
-  if (l != string::npos)
+  if (l != std::string::npos)
     basename.erase(0, l+1);
 
-  cout <<
+  std::cout <<
     "Usage: " << basename << " [options]\n\n" <<
     "-f, --file s       Input file, or the number n;\n" <<
     "                   '100' means ../hands/list100.txt).\n" <<
     "                   (Default: input.txt)\n" <<
+    "                   You can specify multiple to run cases in parallel.\n"
     "\n" <<
     "-s, --solver       One of: solve, calc, play, par, dealerpar.\n" <<
     "                   (Default: solve)\n" <<
-    "\n" <<
-    "-t, --threading t  Currently one of (case-insensitive):\n" <<
-    "                   default, none, winapi, openmp, gcd, boost,\n" <<
-    "                   stl, tbb, stlimpl, pplimpl, stlasync.\n" <<
-    "                   (Default: default meaning that DDS decides)\n" <<
+    "                   You can specify multiple to run cases in parallel.\n"
     "\n" <<
     "-n, --numthr n     Maximum number of threads.\n" <<
     "                   (Default: 0 meaning that DDS decides)\n" <<
@@ -110,7 +90,7 @@ void Usage(
     "-m, --memory n     Total DDS memory size in MB.\n" <<
     "                   (Default: 0 meaning that DDS decides)\n" <<
     "\n" <<
-    endl;
+    std::endl;
 }
 
 
@@ -126,7 +106,7 @@ int GetNextArgToken(
   if (nextToken >= argc)
     return 0;
 
-  string str(argv[nextToken]);
+  std::string str(argv[nextToken]);
   if (str[0] != '-' || str.size() == 1)
     return -1;
 
@@ -166,28 +146,8 @@ int GetNextArgToken(
 
 void SetDefaults()
 {
-  options.fname = "input.txt";
-  options.solver = DTEST_SOLVER_SOLVE;
-  options.threading = DTEST_THREADING_DEFAULT;
   options.numThreads = 0;
   options.memoryMB = 0;
-}
-
-
-void PrintOptions()
-{
-  cout << left;
-  cout << setw(12) << "file" << 
-    setw(12) <<  options.fname << "\n";
-  cout << setw(12) << "solver" << setw(12) <<  
-    solverList[options.solver] << "\n";
-  cout << setw(12) << "threading" << setw(12) <<  
-    threadingList[options.threading] << "\n";
-  cout << setw(12) << "threads" << setw(12) <<  
-    options.numThreads << "\n";
-  cout << setw(12) << "memory" << setw(12) <<  
-    options.memoryMB << " MB\n";
-  cout << "\n" << right;
 }
 
 
@@ -212,7 +172,7 @@ void ReadArgs(
 
   int c, m = 0;
   bool errFlag = false, matchFlag;
-  string stmp;
+  std::string stmp;
   char * ctmp;
   struct stat buffer;
 
@@ -223,19 +183,19 @@ void ReadArgs(
       case 'f':
         if (stat(optarg, &buffer) == 0)
         {
-          options.fname = string(optarg);
+          options.fname.push_back(optarg);
           break;
         }
 
-        stmp = "../hands/list" + string(optarg) + ".txt";
+        stmp = "../hands/list" + std::string(optarg) + ".txt";
         if (stat(stmp.c_str(), &buffer) == 0)
         {
-          options.fname = stmp;
+          options.fname.push_back(stmp);
           break;
         }
 
-        cout << "Input file '" << optarg << "' not found\n";
-        cout << "Input file '" << stmp << "' not found\n";
+        std::cout << "Input file '" << optarg << "' not found\n";
+        std::cout << "Input file '" << stmp << "' not found\n";
         nextToken -= 2;
         errFlag = true;
         break;
@@ -243,12 +203,12 @@ void ReadArgs(
       case 's':
         matchFlag = false;
         stmp = optarg;
-        transform(stmp.begin(), stmp.end(), stmp.begin(), ::tolower);
+        std::transform(stmp.begin(), stmp.end(), stmp.begin(), ::tolower);
 
         for (unsigned i = 0; i < DTEST_SOLVER_SIZE && ! matchFlag; i++)
         {
-          string s = solverList[i];
-          transform(s.begin(), s.end(), s.begin(), ::tolower); 
+          std::string s = solverList[i];
+          transform(s.begin(), s.end(), s.begin(), ::tolower);
           if (stmp == s)
           {
             m = static_cast<int>(i);
@@ -257,36 +217,10 @@ void ReadArgs(
         }
 
         if (matchFlag)
-          options.solver = static_cast<Solver>(m);
+          options.solver.push_back(static_cast<Solver>(m));
         else
         {
-          cout << "Solver '" << optarg << "' not found\n";
-          nextToken -= 2;
-          errFlag = true;
-        }
-        break;
-
-      case 't':
-        matchFlag = false;
-        stmp = optarg;
-        transform(stmp.begin(), stmp.end(), stmp.begin(), ::tolower);
-
-        for (unsigned i = 0; i < DTEST_THREADING_SIZE && ! matchFlag; i++)
-        {
-          string s = threadingList[i];
-          transform(s.begin(), s.end(), s.begin(), ::tolower); 
-          if (stmp == s)
-          {
-            m = static_cast<int>(i);
-            matchFlag = true;
-          }
-        }
-
-        if (matchFlag)
-          options.threading = static_cast<Threading>(m);
-        else
-        {
-          cout << "Threading '" << optarg << "' not found\n";
+          std::cout << "Solver '" << optarg << "' not found\n";
           nextToken -= 2;
           errFlag = true;
         }
@@ -296,7 +230,7 @@ void ReadArgs(
         m = static_cast<int>(strtol(optarg, &ctmp, 0));
         if (m < 0)
         {
-          cout << "Number of threads must be >= 0\n\n";
+          std::cout << "Number of threads must be >= 0\n\n";
           nextToken -= 2;
           errFlag = true;
         }
@@ -307,7 +241,7 @@ void ReadArgs(
         m = static_cast<int>(strtol(optarg, &ctmp, 0));
         if (m < 0)
         {
-          cout << "Memory in MB must be >= 0\n\n";
+          std::cout << "Memory in MB must be >= 0\n\n";
           nextToken -= 2;
           errFlag = true;
         }
@@ -315,7 +249,7 @@ void ReadArgs(
         break;
 
       default:
-        cout << "Unknown option\n";
+        std::cout << "Unknown option\n";
         errFlag = true;
         break;
     }
@@ -325,9 +259,14 @@ void ReadArgs(
 
   if (errFlag || c == -1)
   {
-    cout << "Error while parsing option '" << argv[nextToken] << "'\n";
-    cout << "Invoke the program without arguments for help" << endl;
+    std::cout << "Error while parsing option '" << argv[nextToken] << "'\n";
+    std::cout << "Invoke the program without arguments for help" << std::endl;
     exit(EXIT_FAILURE);
   }
+
+  if (options.fname.empty())
+    options.fname.push_back("input.txt");
+  if (options.solver.empty())
+    options.solver.push_back(DTEST_SOLVER_SOLVE);
 }
 

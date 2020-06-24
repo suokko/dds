@@ -17,14 +17,12 @@
 #include "compare.h"
 #include "print.h"
 
-using namespace std;
-
 #define BATCHTIMES
 
 extern TestTimer timer;
 
 
-void loop_solve(
+void loop_solve(std::ostream &out,
   boardsPBN * bop,
   solvedBoards * solvedbdp,
   dealPBN * deal_list,
@@ -33,8 +31,8 @@ void loop_solve(
   const int stepsize)
 {
 #ifdef BATCHTIMES
-  cout << setw(8) << left << "Hand no." << 
-    setw(25) << right << "Time" << "\n";
+  out << std::setw(8) << std::left << "Hand no." <<
+    std::setw(25) << std::right << "Time" << "\n";
 #endif
 
   for (int i = 0; i < number; i += stepsize)
@@ -54,13 +52,13 @@ void loop_solve(
     int ret;
     if ((ret = SolveAllBoards(bop, solvedbdp)) != RETURN_NO_FAULT)
     {
-      cout << "loop_solve: i " << i << ", return " << ret << "\n";
+      out << "loop_solve: i " << i << ", return " << ret << "\n";
       exit(EXIT_FAILURE);
     }
     timer.end();
 
 #ifdef BATCHTIMES
-    timer.printRunning(i+count, number);
+    timer.printRunning(out, i+count, number);
 #endif
 
     for (int j = 0; j < count; j++)
@@ -68,24 +66,24 @@ void loop_solve(
       if (compare_FUT(solvedbdp->solvedBoard[j], fut_list[i + j]))
         continue;
 
-      cout << "loop_solve: i " << i << ", j " << j << ": " <<
+      out << "loop_solve: i " << i << ", j " << j << ": " <<
         "Difference\n\n";
-      print_FUT(solvedbdp->solvedBoard[j]);
-      cout << "\nExpected outcome was:\n";
-      print_FUT(fut_list[i+j]);
-      cout << "\n";
+      print_FUT(out, solvedbdp->solvedBoard[j]);
+      out << "\nExpected outcome was:\n";
+      print_FUT(out, fut_list[i+j]);
+      out << "\n";
       exit(EXIT_FAILURE);
     }
   }
 
 #ifdef BATCHTIMES
-  cout << "\n";
+  out << "\n";
 #endif
 
 }
 
 
-bool loop_calc(
+bool loop_calc(std::ostream &out,
   ddTableDealsPBN * dealsp,
   ddTablesRes * resp,
   allParResults * parp,
@@ -95,8 +93,8 @@ bool loop_calc(
   const int stepsize)
 {
 #ifdef BATCHTIMES
-  cout << setw(8) << left << "Hand no." << 
-    setw(25) << right << "Time" << "\n";
+  out << std::setw(8) << std::left << "Hand no." <<
+    std::setw(25) << std::right << "Time" << "\n";
 #endif
 
   int filter[5] = {0, 0, 0, 0, 0};
@@ -113,13 +111,13 @@ bool loop_calc(
     if ((ret = CalcAllTablesPBN(dealsp, -1, filter, resp, parp))
         != RETURN_NO_FAULT)
     {
-      cout << "loop_calc: i " << i << ", return " << ret << "\n";
+      out << "loop_calc: i " << i << ", return " << ret << "\n";
       exit(EXIT_FAILURE);
     }
     timer.end();
 
 #ifdef BATCHTIMES
-    timer.printRunning(i+count, number);
+    timer.printRunning(out, i+count, number);
 #endif
 
     for (int j = 0; j < count; j++)
@@ -127,18 +125,18 @@ bool loop_calc(
       if (compare_TABLE(resp->results[j], table_list[i + j]))
         continue;
 
-      cout << "loop_calc: i " << i << ", j " << j << ": " <<
+      out << "loop_calc: i " << i << ", j " << j << ": " <<
         "Difference\n\n";
-      print_TABLE(resp->results[j] );
-      cout << "\nExpected outcome was:\n";
-      print_TABLE(table_list[i + j]) ;
-      cout << "\n";
+      print_TABLE(out, resp->results[j] );
+      out << "\nExpected outcome was:\n";
+      print_TABLE(out, table_list[i + j]) ;
+      out << "\n";
       exit(EXIT_FAILURE);
     }
   }
 
 #ifdef BATCHTIMES
-  cout << "\n";
+  out << "\n";
 #endif
 
   return true;
@@ -146,7 +144,7 @@ bool loop_calc(
 
 
 
-bool loop_par(
+bool loop_par(std::ostream &out,
   int * vul_list,
   ddTableResults * table_list,
   parResults * par_list,
@@ -166,7 +164,7 @@ bool loop_par(
       if ((ret = Par(&table_list[i], &presp, vul_list[i]))
           != RETURN_NO_FAULT)
       {
-        cout << "loop_par: i " << i << ", j " << j << ": " <<
+        out << "loop_par: i " << i << ", j " << j << ": " <<
           "return " << ret << "\n";
         exit(EXIT_FAILURE);
       }
@@ -175,11 +173,11 @@ bool loop_par(
     if (compare_PAR(presp, par_list[i]))
       continue;
 
-    cout << "loop_par i " << i << ": Difference\n\n";
-    print_PAR(presp);
-    cout << "\nExpected outcome was:\n";
-    print_PAR(par_list[i]);
-    cout << "\n";
+    out << "loop_par i " << i << ": Difference\n\n";
+    print_PAR(out, presp);
+    out << "\nExpected outcome was:\n";
+    print_PAR(out, par_list[i]);
+    out << "\n";
     exit(EXIT_FAILURE);
   }
 
@@ -187,7 +185,7 @@ bool loop_par(
 }
 
 
-bool loop_dealerpar(
+bool loop_dealerpar(std::ostream &out,
   int * dealer_list,
   int * vul_list,
   ddTableResults * table_list,
@@ -209,7 +207,7 @@ bool loop_dealerpar(
       if ((ret = DealerPar(&table_list[i], &presp,
           dealer_list[i], vul_list[i])) != RETURN_NO_FAULT)
       {
-        cout << "loop_dealerpar: i " << i << ", j " << j << ": " <<
+        out << "loop_dealerpar: i " << i << ", j " << j << ": " <<
           "return " << ret << "\n";
         exit(EXIT_FAILURE);
       }
@@ -218,24 +216,24 @@ bool loop_dealerpar(
     if (compare_DEALERPAR(presp, dealerpar_list[i]))
       continue;
 
-    cout << "loop_dealerpar i " << i << ": Difference\n\n";
-    print_DEALERPAR(presp);
-    cout << "\nExpected outcome was:\n";
-    print_DEALERPAR(dealerpar_list[i]);
-    cout << "\n";
+    out << "loop_dealerpar i " << i << ": Difference\n\n";
+    print_DEALERPAR(out, presp);
+    out << "\nExpected outcome was:\n";
+    print_DEALERPAR(out, dealerpar_list[i]);
+    out << "\n";
     exit(EXIT_FAILURE);
   }
   timer.end();
 
 #ifdef BATCHTIMES
-  timer.printRunning(number, number);
+  timer.printRunning(out, number, number);
 #endif
 
   return true;
 }
 
 
-bool loop_play(
+bool loop_play(std::ostream &out,
   boardsPBN * bop,
   playTracesPBN * playsp,
   solvedPlays * solvedplp,
@@ -246,8 +244,8 @@ bool loop_play(
   const int stepsize)
 {
 #ifdef BATCHTIMES
-  cout << setw(8) << left << "Hand no." << 
-    setw(25) << right << "Time" << "\n";
+  out << std::setw(8) << std::left << "Hand no." <<
+    std::setw(25) << std::right << "Time" << "\n";
 #endif
 
   for (int i = 0; i < number; i += stepsize)
@@ -273,13 +271,13 @@ bool loop_play(
         != RETURN_NO_FAULT)
     {
       printf("loop_play i %i: Return %d\n", i, ret);
-      cout << "loop_play: i " << i << ": " << "return " << ret << "\n";
+      out << "loop_play: i " << i << ": " << "return " << ret << "\n";
       exit(EXIT_FAILURE);
     }
     timer.end();
 
 #ifdef BATCHTIMES
-    timer.printRunning(i+count, number);
+    timer.printRunning(out, i+count, number);
 #endif
 
     for (int j = 0; j < count; j++)
@@ -288,10 +286,10 @@ bool loop_play(
         continue;
 
       printf("loop_play i %d, j %d: Difference\n", i, j);
-      cout << "loop_play: i " << i << ", j " << j << ": " <<
+      out << "loop_play: i " << i << ", j " << j << ": " <<
         "Difference\n\n";
-      print_double_TRACE(solvedplp->solved[j], trace_list[i+j]);
-      cout << "\n";
+      print_double_TRACE(out, solvedplp->solved[j], trace_list[i+j]);
+      out << "\n";
       exit(EXIT_FAILURE);
     }
   }

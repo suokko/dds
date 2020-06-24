@@ -8,14 +8,13 @@
 */
 
 
+#include <future>
 #include <iostream>
 
 #include "dll.h"
 #include "testcommon.h"
 #include "args.h"
 #include "cst.h"
-
-using namespace std;
 
 OptionsType options;
 
@@ -24,14 +23,26 @@ int main(int argc, char * argv[])
 {
   ReadArgs(argc, argv);
 
-  if (options.threading != DTEST_THREADING_DEFAULT)
-    SetThreading(static_cast<int>(options.threading));
-
   SetResources(options.memoryMB, options.numThreads);
 
   DDSInfo info;
   GetDDSInfo(&info);
-  cout << info.systemString << endl;
+  std::cout << info.systemString << std::endl;
 
-  return realMain(argc, argv);
+  std::vector<std::future<int>> rv;
+  size_t sz = options.fname.size()*options.solver.size();
+
+  rv.reserve(sz);
+  std::launch policy = sz == 1 ?
+    std::launch::deferred :
+    std::launch::deferred | std::launch::async;
+
+  for (const std::string& fn: options.fname)
+    for (const Solver& s: options.solver)
+      rv.push_back(std::async(policy, realMain, std::ref(fn), s));
+
+  int r = 0;
+  for (std::future<int>& f: rv)
+    r |= f.get();
+  return r;
 }

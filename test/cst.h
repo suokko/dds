@@ -11,8 +11,7 @@
 #define DTEST_CST_H
 
 #include <string>
-
-using namespace std;
+#include <vector>
 
 
 enum Solver
@@ -43,9 +42,8 @@ enum Threading
 
 struct OptionsType
 {
-  string fname;
-  Solver solver;
-  Threading threading;
+  std::vector<std::string> fname;
+  std::vector<Solver> solver;
   int numThreads;
   int memoryMB;
 };

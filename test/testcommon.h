@@ -10,7 +10,9 @@
 #ifndef DTEST_TESTCOMMON_H
 #define DTEST_TESTCOMMON_H
 
-int realMain(int argc, char * argv[]);
+#include "cst.h"
+
+int realMain(const std::string& fname, Solver solver);
 
 #endif
 

@@ -16,13 +16,11 @@
 using Clock = std::chrono::steady_clock;
 using std::chrono::time_point;
 
-using namespace std;
-
 
 class TestTimer
 {
   private:
-    string name;
+    std::string name;
     long count;
     long userCum;
     long userCumOld;
@@ -38,16 +36,16 @@ class TestTimer
 
     void reset();
 
-    void setname(const string& s);
+    void setname(const std::string& s);
 
     void start(const int number = 1);
     void end();
 
-    void printRunning(
+    void printRunning(std::ostream &out,
       const int reached,
       const int number);
-    void printBasic() const;
-    void printHands() const;
+    void printBasic(std::ostream &out) const;
+    void printHands(std::ostream &out) const;
 };
 
 #endif

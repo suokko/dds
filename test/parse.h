@@ -12,11 +12,9 @@
 
 #include "dll.h"
 
-using namespace std;
 
-
-bool read_file(
-  const string& fname,
+bool read_file(std::ostream &out,
+  const std::string& fname,
   int& number,
   bool& GIBmode,
   int ** dealer_list,

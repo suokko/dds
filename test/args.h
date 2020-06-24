@@ -14,8 +14,6 @@
 void Usage(
  const char base[]);
 
-void PrintOptions();
-
 void ReadArgs(
   int argc,
   char * argv[]);

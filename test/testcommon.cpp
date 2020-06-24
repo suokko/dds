@@ -8,9 +8,11 @@
 */
 
 
+#include <array>
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include <sstream>
 
 #include "dll.h"
 #include "portab.h"
@@ -23,14 +25,12 @@
 #include "print.h"
 #include "cst.h"
 
-using namespace std;
-
-string GetSystem();
-string GetBits();
-string GetCompiler();
+std::string GetSystem();
+std::string GetBits();
+std::string GetCompiler();
 
 
-const vector<string> DDS_SYSTEM_PLATFORM =
+const std::array<std::string, 5> DDS_SYSTEM_PLATFORM =
 {
   "",
   "Windows",
@@ -39,7 +39,7 @@ const vector<string> DDS_SYSTEM_PLATFORM =
   "Apple"
 };
 
-const vector<string> DDS_SYSTEM_COMPILER =
+const std::array<std::string, 5> DDS_SYSTEM_COMPILER =
 {
   "",
   "Microsoft Visual C++",
@@ -53,29 +53,35 @@ extern OptionsType options;
 TestTimer timer;
 
 
-void main_identify();
+void main_identify(std::ostream& ostream);
 
+struct Flusher {
+  std::ostringstream &stream;
+  ~Flusher() {
+    std::cout << stream.str();
+  }
+};
 
-int realMain(int argc, char * argv[])
+int realMain(const std::string& fname, Solver solver)
 {
-  UNUSED(argc);
-  UNUSED(argv);
   bool GIBmode = false;
 
+  std::ostringstream out;
+  Flusher flusher{out};
   int stepsize = 0;
-  if (options.solver == DTEST_SOLVER_SOLVE)
+  if (solver == DTEST_SOLVER_SOLVE)
     stepsize = MAXNOOFBOARDS;
-  else if (options.solver == DTEST_SOLVER_CALC)
+  else if (solver == DTEST_SOLVER_CALC)
     stepsize = MAXNOOFTABLES;
-  else if (options.solver == DTEST_SOLVER_PLAY)
+  else if (solver == DTEST_SOLVER_PLAY)
     stepsize = MAXNOOFBOARDS;
-  else if (options.solver == DTEST_SOLVER_PAR)
+  else if (solver == DTEST_SOLVER_PAR)
     stepsize = 1;
-  else if (options.solver == DTEST_SOLVER_DEALERPAR)
+  else if (solver == DTEST_SOLVER_DEALERPAR)
     stepsize = 1;
 
   set_constants();
-  main_identify();
+  main_identify(out);
 
   int number;
   int * dealer_list;
@@ -87,18 +93,18 @@ int realMain(int argc, char * argv[])
   parResultsDealer * dealerpar_list;
   playTracePBN * play_list;
   solvedPlay * trace_list;
-  if (read_file(options.fname, number, GIBmode, &dealer_list, &vul_list,
+  if (read_file(out, fname, number, GIBmode, &dealer_list, &vul_list,
         &deal_list, &fut_list, &table_list, &par_list, &dealerpar_list,
         &play_list, &trace_list) == false)
   {
-    cout << "read_file failed\n";
-    exit(EXIT_FAILURE);
+    out << "read_file failed\n";
+    return EXIT_FAILURE;
   }
 
-  if (GIBmode && options.solver != DTEST_SOLVER_CALC)
+  if (GIBmode && solver != DTEST_SOLVER_CALC)
   {
-    cout << "GIB file only works works with calc\n";
-    exit(EXIT_FAILURE);
+    out << "GIB file only works works with calc\n";
+    return EXIT_FAILURE;
   }
 
   timer.reset();
@@ -112,37 +118,32 @@ int realMain(int argc, char * argv[])
   playTracesPBN playsp;
   solvedPlays solvedplp;
 
-  if (options.solver == DTEST_SOLVER_SOLVE)
-  {
-    loop_solve(&bop, &solvedbdp, deal_list, fut_list, number, stepsize);
-  }
-  else if (options.solver == DTEST_SOLVER_CALC)
-  {
-    loop_calc(&dealsp, &resp, &parp, deal_list, table_list, 
-      number, stepsize);
-  }
-  else if (options.solver == DTEST_SOLVER_PLAY)
-  {
-    loop_play(&bop, &playsp, &solvedplp, deal_list, play_list, trace_list, 
-      number, stepsize);
-  }
-  else if (options.solver == DTEST_SOLVER_PAR)
-  {
-    loop_par(vul_list, table_list, par_list, number, stepsize);
-  }
-  else if (options.solver == DTEST_SOLVER_DEALERPAR)
-  {
-    loop_dealerpar(dealer_list, vul_list, table_list, dealerpar_list, 
-      number, stepsize);
-  }
-  else
-  {
-    cout << "Unknown type " << 
-      static_cast<unsigned>(options.solver) << "\n";
-    exit(EXIT_FAILURE);
+  switch (solver) {
+  case DTEST_SOLVER_SOLVE:
+    loop_solve(out, &bop, &solvedbdp, deal_list, fut_list, number, stepsize);
+    break;
+  case DTEST_SOLVER_CALC:
+    loop_calc(out, &dealsp, &resp, &parp, deal_list, table_list,
+        number, stepsize);
+    break;
+  case DTEST_SOLVER_PLAY:
+    loop_play(out, &bop, &playsp, &solvedplp, deal_list, play_list, trace_list,
+        number, stepsize);
+    break;
+  case DTEST_SOLVER_PAR:
+    loop_par(out, vul_list, table_list, par_list, number, stepsize);
+    break;
+  case DTEST_SOLVER_DEALERPAR:
+    loop_dealerpar(out, dealer_list, vul_list, table_list, dealerpar_list,
+        number, stepsize);
+    break;
+  default:
+    out << "Unknown type " <<
+      static_cast<unsigned>(solver) << "\n";
+    return EXIT_FAILURE;
   }
 
-  timer.printHands();
+  timer.printHands(out);
 
   free(dealer_list);
   free(vul_list);
@@ -162,7 +163,7 @@ int realMain(int argc, char * argv[])
 //                     Self-identification                          //
 //////////////////////////////////////////////////////////////////////
 
-string GetSystem()
+std::string GetSystem()
 {
   unsigned sys;
 #if defined(_WIN32)
@@ -176,12 +177,12 @@ string GetSystem()
 #else
   sys = 0;
 #endif
-  
+
   return DDS_SYSTEM_PLATFORM[sys];
 }
 
 
-string GetBits()
+std::string GetBits()
 {
   if (sizeof(void *) == 4)
     return "32 bits";
@@ -192,7 +193,7 @@ string GetBits()
 }
 
 
-string GetCompiler()
+std::string GetCompiler()
 {
   unsigned comp;
 #if defined(_MSC_VER)
@@ -211,22 +212,22 @@ string GetCompiler()
 }
 
 
-void main_identify()
+void main_identify(std::ostream &out)
 {
-  cout << "test program\n";
-  cout << string(13, '-') << "\n";
+  out << "test program\n";
+  out << std::string(13, '-') << "\n";
 
-  const string strSystem = GetSystem();
-  cout << left << setw(13) << "System" <<
-    setw(20) << right << strSystem << "\n";
+  const std::string strSystem = GetSystem();
+  out << std::left << std::setw(13) << "System" <<
+    std::setw(20) << std::right << strSystem << "\n";
 
-  const string strBits = GetBits();
-  cout << left << setw(13) << "Word size" <<
-    setw(20) << right << strBits << "\n";
+  const std::string strBits = GetBits();
+  out << std::left << std::setw(13) << "Word size" <<
+    std::setw(20) << std::right << strBits << "\n";
 
-  const string strCompiler = GetCompiler();
-  cout << left << setw(13) << "Compiler" <<
-    setw(20) << right << strCompiler << "\n\n";
+  const std::string strCompiler = GetCompiler();
+  out << std::left << std::setw(13) << "Compiler" <<
+    std::setw(20) << std::right << strCompiler << "\n\n";
 }
 
 

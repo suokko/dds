@@ -15,26 +15,24 @@
 
 #include "dll.h"
 
-using namespace std;
-
 
 void set_constants();
 
-void print_PBN(const dealPBN& dl);
+void print_PBN(std::ostream &out, const dealPBN& dl);
 
-void print_FUT(const futureTricks& fut);
+void print_FUT(std::ostream &out, const futureTricks& fut);
 
-void print_TABLE(const ddTableResults& table);
+void print_TABLE(std::ostream &out, const ddTableResults& table);
 
-void print_PAR(const parResults& par);
+void print_PAR(std::ostream &out, const parResults& par);
 
-void print_DEALERPAR(const parResultsDealer& par);
+void print_DEALERPAR(std::ostream &out, const parResultsDealer& par);
 
-void print_PLAY(const playTracePBN& play);
+void print_PLAY(std::ostream &out, const playTracePBN& play);
 
-void print_TRACE(const solvedPlay& solved);
+void print_TRACE(std::ostream &out, const solvedPlay& solved);
 
-void print_double_TRACE(
+void print_double_TRACE(std::ostream &out,
   const solvedPlay& solved,
   const solvedPlay& ref);
 

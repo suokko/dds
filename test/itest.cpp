@@ -17,8 +17,6 @@
 #include "args.h"
 #include "cst.h"
 
-using namespace std;
-
 OptionsType options;
 
 

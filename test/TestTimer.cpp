@@ -38,7 +38,7 @@ void TestTimer::reset()
 }
 
 
-void TestTimer::setname(const string& s)
+void TestTimer::setname(const std::string& s)
 {
   name = s;
 }
@@ -57,7 +57,7 @@ void TestTimer::end()
   time_point<Clock> user1 = Clock::now();
   clock_t sys1 = clock();
 
-  chrono::duration<double, milli> d = user1 - user0;
+  std::chrono::duration<double, std::milli> d = user1 - user0;
   int tuser = static_cast<int>(1000. * d.count());
 
   userCum += tuser;
@@ -66,98 +66,98 @@ void TestTimer::end()
 }
 
 
-void TestTimer::printRunning(
+void TestTimer::printRunning(std::ostream &out,
   const int reached,
   const int divisor)
 {
   if (count == 0)
     return;
 
-  cout << setw(8) << reached << " (" <<
-    setw(6) << setprecision(1) << right << fixed <<
-      100. * reached / 
+  out << std::setw(8) << reached << " (" <<
+    std::setw(6) << std::setprecision(1) << std::right << std::fixed <<
+      100. * reached /
         static_cast<float>(divisor) << "%)" <<
-    setw(15) << right << fixed << setprecision(0) << 
-      (userCum - userCumOld) / 1000. << endl;
-  
+    std::setw(15) << std::right << std::fixed << std::setprecision(0) <<
+      (userCum - userCumOld) / 1000. << std::endl;
+
   userCumOld = userCum;
 }
 
 
-void TestTimer::printBasic() const
+void TestTimer::printBasic(std::ostream &out) const
 {
-  if (count == 0) 
+  if (count == 0)
     return;
 
   if (name != "")
-    cout << setw(19) << left << "Timer name" << ": " << name << "\n";
+    out << std::setw(19) << std::left << "Timer name" << ": " << name << "\n";
 
-  cout << setw(19) << left << "Number of calls" << ": " << count << "\n";
+  out << std::setw(19) << std::left << "Number of calls" << ": " << count << "\n";
 
   if (userCum == 0)
-    cout << setw(19) << left << "User time" << ": " << "zero" << "\n";
+    out << std::setw(19) << std::left << "User time" << ": " << "zero" << "\n";
   else
   {
-    cout << setw(19) << left << "User time/ticks" << ": " <<
+    out << std::setw(19) << std::left << "User time/ticks" << ": " <<
       userCum << "\n";
-    cout << setw(19) << left << "User per call" << ": " <<
-      setprecision(2) << userCum / static_cast<float>(count) << "\n";
+    out << std::setw(19) << std::left << "User per call" << ": " <<
+      std::setprecision(2) << userCum / static_cast<float>(count) << "\n";
   }
 
   if (sysCum == 0)
-    cout << setw(19) << left << "Sys time" << ": " << "zero" << "\n";
+    out << std::setw(19) << std::left << "Sys time" << ": " << "zero" << "\n";
   else
   {
-    cout << setw(19) << left << "Sys time/ticks" << ": " <<
+    out << std::setw(19) << std::left << "Sys time/ticks" << ": " <<
       sysCum << "\n";
-    cout << setw(19) << left << "Sys per call" << ": " <<
-      setprecision(2) << sysCum / static_cast<float>(count) << "\n";
-    cout << setw(19) << left << "Ratio" << ": " <<
-      setprecision(2) << sysCum / static_cast<float>(userCum);
+    out << std::setw(19) << std::left << "Sys per call" << ": " <<
+      std::setprecision(2) << sysCum / static_cast<float>(count) << "\n";
+    out << std::setw(19) << std::left << "Ratio" << ": " <<
+      std::setprecision(2) << sysCum / static_cast<float>(userCum);
   }
-  cout << endl;
+  out << std::endl;
 }
 
 
-void TestTimer::printHands() const
+void TestTimer::printHands(std::ostream &out) const
 {
   if (name != "")
-    cout << setw(21) << left << "Timer name" << 
-      setw(12) << right << name << "\n";
+    out << std::setw(21) << std::left << "Timer name" <<
+      std::setw(12) << std::right << name << "\n";
 
-  cout << setw(21) << left << "Number of hands" << 
-    setw(12) << right << count << "\n";
+  out << std::setw(21) << std::left << "Number of hands" <<
+    std::setw(12) << std::right << count << "\n";
 
   if (count == 0)
     return;
-  
+
   if (userCum == 0)
-    cout << setw(21) << left << "User time (ms)" <<
-      setw(12) << right << "zero" << "\n";
+    out << std::setw(21) << std::left << "User time (ms)" <<
+      std::setw(12) << std::right << "zero" << "\n";
   else
   {
-    cout << setw(21) << left << "User time (ms)" <<
-      setw(12) << right << fixed << 
-        setprecision(0) << userCum / 1000. << "\n";
-    cout << setw(21) << left << "Avg user time (ms)" <<
-      setw(12) << right << fixed << setprecision(2) << userCum / 
+    out << std::setw(21) << std::left << "User time (ms)" <<
+      std::setw(12) << std::right << std::fixed <<
+        std::setprecision(0) << userCum / 1000. << "\n";
+    out << std::setw(21) << std::left << "Avg user time (ms)" <<
+      std::setw(12) << std::right << std::fixed << std::setprecision(2) << userCum /
         static_cast<float>(1000. * count) << "\n";
   }
 
   if (sysCum == 0)
-    cout << setw(21) << left << "Sys time" << 
-      setw(12) << right << "zero" << "\n";
+    out << std::setw(21) << std::left << "Sys time" <<
+      std::setw(12) << std::right << "zero" << "\n";
   else
   {
-    cout << setw(21) << left << "Sys time (ms)" <<
-      setw(12) << right << fixed << setprecision(0) << sysCum << "\n";
-    cout << setw(21) << left << "Avg sys time (ms)" <<
-      setw(12) << right << fixed << setprecision(2) << sysCum / 
+    out << std::setw(21) << std::left << "Sys time (ms)" <<
+      std::setw(12) << std::right << std::fixed << std::setprecision(0) << sysCum << "\n";
+    out << std::setw(21) << std::left << "Avg sys time (ms)" <<
+      std::setw(12) << std::right << std::fixed << std::setprecision(2) << sysCum /
         static_cast<float>(count) << "\n";
-    cout << setw(21) << left << "Ratio" << 
-      setw(12) << right << fixed << setprecision(2) << 
+    out << std::setw(21) << std::left << "Ratio" <<
+      std::setw(12) << std::right << std::fixed << std::setprecision(2) <<
       1000. * sysCum / static_cast<float>(userCum);
   }
-  cout << endl;
+  out << std::endl;
 }
 

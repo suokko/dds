@@ -13,7 +13,7 @@
 #include "dll.h"
 
 
-void loop_solve(
+void loop_solve(std::ostream &out,
   boardsPBN * bop,
   solvedBoards * solvedbdp,
   dealPBN * deal_list,
@@ -21,7 +21,7 @@ void loop_solve(
   const int number,
   const int stepsize);
 
-bool loop_calc(
+bool loop_calc(std::ostream &out,
   ddTableDealsPBN * dealsp,
   ddTablesRes * resp,
   allParResults * parp,
@@ -30,14 +30,14 @@ bool loop_calc(
   const int number,
   const int stepsize);
 
-bool loop_par(
+bool loop_par(std::ostream &out,
   int * vul_list,
   ddTableResults * table_list,
   parResults * par_list,
   const int number,
   const int stepsize);
 
-bool loop_dealerpar(
+bool loop_dealerpar(std::ostream &out,
   int * dealer_list,
   int * vul_list,
   ddTableResults * table_list,
@@ -45,7 +45,7 @@ bool loop_dealerpar(
   const int number,
   const int stepsize);
 
-bool loop_play(
+bool loop_play(std::ostream &out,
   boardsPBN * bop,
   playTracesPBN * playsp,
   solvedPlays * solvedplp,
