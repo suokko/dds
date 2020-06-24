@@ -4,7 +4,12 @@ Release Notes DDS 2.9.1
 - Added SolveAllBoardsBin
 - Fixed a potential crash when exiting process using the library
 - Fixed Mac memory size query when loading the library to same process
-  [https://github.com/dds-bridge/dds/issues/104]
+  [Bug #104](https://github.com/dds-bridge/dds/issues/104)
+- Fixed multiple race conditions when user code calls library from multiple
+  threads
+- Removed all threading models except std::async based which is always enabled
+- Marked SetThreading deprecated because it doesn't do anything
+- Marked Chunk functions deprecated for future removal
 
 Release Notes DDS 2.9.0
 -----------------------

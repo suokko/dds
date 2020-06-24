@@ -50,7 +50,7 @@ If you install ddd manually, put it in a directory parallel to these directories
 
 Supported systems
 =================
-The DLLs work out of the box on Windows systems.  There is a single-threaded version for old Windows versions, and there is a multi-threaded version that works on all modern Windows systems.  This is the one you should use if in doubt.  
+The DLLs work out of the box on Windows systems.  There is a single-threaded version for old Windows versions, and there is a multi-threaded version that works on all modern Windows systems.  This is the one you should use if in doubt.
 
 The distributed Windows DLL uses Windows multi-threading.  The code compiles on windows (see INSTALL) with at least:
 
@@ -60,12 +60,10 @@ The distributed Windows DLL uses Windows multi-threading.  The code compiles on 
 
 We have also compiled the code and/or had help from other contributors on the following systems.
 
-* Linux Ubuntu with g++ and with OpenMP multi-threading.
-* Mac OS 10.9 with clang and GCD or STL multi-threading.
+* Linux Ubuntu with g++ and clang.
+* Mac OS 10.9 with clang.
 
-Here the libraries are `.a` files, not DLLs.  There are also Makefiles for shared libraries available.
-
-Thanks to Pierre Cossard's contribution, the Mac port now also supports GCD multi-threading with LLVM.
+Here the libraries are `.so` files, not DLLs.
 
 There's an example .Net wrapper on https://github.com/anorsich/dds.net (not supported by us).
 
