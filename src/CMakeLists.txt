@@ -27,7 +27,6 @@ set(DDS_SRC
     Memory.h
     Moves.cpp
     Moves.h
-    parallel.h
     Par.cpp
     PBN.cpp
     PBN.h
@@ -178,50 +177,8 @@ if (LTO_SUPPORTED)
     set_target_properties(dds PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif ()
 
-# Add WINAPI threading support on windows
-if (WIN32)
-    target_compile_definitions(dds PRIVATE DDS_THREADS_WINAPI)
-endif ()
-# Add GCD threading support on Mac OS X
-if (GCD_FOUND)
-    # If it is standard library then there is no need to detect presence
-    target_compile_definitions(dds PRIVATE DDS_THREADS_GCD)
-    target_link_libraries(dds PRIVATE GCD::GCD)
-endif ()
-
-# Add TBB threading if configure found the library
-if (TBB_FOUND)
-    target_compile_definitions(dds PRIVATE DDS_THREADS_TBB)
-    target_link_libraries(dds PRIVATE TBB::tbb)
-endif ()
-
-# Add PPL threading if configure found the header
-if (PPL_FOUND)
-    target_compile_definitions(dds PRIVATE DDS_THREADS_PPLIMPL)
-    target_link_libraries(dds PRIVATE PPL::PPL)
-endif ()
-
 # Always enable stl threads as c++11 is required
 target_link_libraries(dds PRIVATE Threads::Threads)
-target_compile_definitions(dds PRIVATE DDS_THREADS_STL)
-target_compile_definitions(dds PRIVATE DDS_THREADS_STLASYNC)
-
-# If C++ standard is 17 or higher then STLIMPL is available
-if (CMAKE_CXX_STANDARD GREATER 14)
-    target_compile_definitions(dds PRIVATE DDS_THREADS_STLIMPL)
-endif ()
-
-if (Boost_FOUND)
-    # Add boost threading if libraries were found
-    target_link_libraries(dds PRIVATE Boost::thread)
-    target_compile_definitions(dds PRIVATE DDS_THREADS_BOOST)
-endif ()
-
-if (OpenMP_FOUND)
-    # Add OpenMP if compilers supports it
-    target_compile_definitions(dds PRIVATE DDS_THREADS_OPENMP)
-    target_link_libraries(dds PRIVATE OpenMP::OpenMP_CXX)
-endif ()
 
 # Install the library and related development files
 # It also generates DDSTargets.cmake helper for find_package(DDS)

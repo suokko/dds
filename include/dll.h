@@ -360,18 +360,11 @@ struct DDSInfo
 
   int numCores;
 
-  // Currently 
-  // 0 = none, 
-  // 1 = Windows (native), 
-  // 2 = OpenMP, 
-  // 3 = GCD,
-  // 4 = Boost,
-  // 5 = STL,
-  // 6 = TBB,
-  // 7 = STLIMPL (for_each), experimental only
-  // 8 = PPLIMPL (for_each), experimental only
-  // 9 = STLAsync (uses std::async for a simple work queue)
-  int threading;
+  // Deprecated
+#if __cplusplus
+  [[deprecated]]
+#endif
+    int threading;
 
   // The actual number of threads configured
   int noOfThreads;
@@ -389,7 +382,7 @@ struct DDSInfo
 EXTERN_C DLLEXPORT void STDCALL SetMaxThreads(
   int userThreads);
 
-EXTERN_C DLLEXPORT int STDCALL SetThreading(
+EXTERN_C DLLDEPRECATED_EXPORT int STDCALL SetThreading(
   int code);
 
 EXTERN_C DLLEXPORT void STDCALL SetResources(

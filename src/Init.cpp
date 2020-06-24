@@ -113,7 +113,7 @@ void STDCALL SetResources(
   int thrMax;
   if (sysdep.IsSingleThreaded())
     thrMax = 1;
-  else if (sysdep.IsIMPL() || maxThreadsIn <= 0)
+  else if (maxThreadsIn <= 0)
     thrMax = ncores;
   else
     thrMax = min(maxThreadsIn, ncores);
@@ -171,10 +171,9 @@ void STDCALL SetResources(
 }
 
 
-int STDCALL SetThreading(
-  int code)
+int STDCALL SetThreading(int)
 {
-  return sysdep.PreferThreading(static_cast<unsigned>(code));
+  return RETURN_NO_FAULT;
 }
 
 

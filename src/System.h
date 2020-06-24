@@ -42,10 +42,6 @@ class System
     int numThreads;
     int sysMem_MB;
 
-    unsigned preferredSystem;
-
-    vector<bool> availableSystem;
-
     static constexpr std::array<fptrType, 3> CallbackSimpleList = {
       SolveChunkCommon,
       CalcChunkCommon,
@@ -69,30 +65,7 @@ class System
 
     ThreadMgr threadMgr;
 
-    int RunThreadsBasic(RunMode runCat, Scheduler &scheduler);
-    int RunThreadsBoost(RunMode runCat, Scheduler &scheduler);
-    int RunThreadsOpenMP(RunMode runCat, Scheduler &scheduler);
-    int RunThreadsGCD(RunMode runCat, Scheduler &scheduler);
-    int RunThreadsWinAPI(RunMode runCat, Scheduler &scheduler);
-    int RunThreadsSTL(RunMode runCat, Scheduler &scheduler);
     int RunThreadsSTLAsync(RunMode runCat, Scheduler &scheduler);
-    int RunThreadsTBB(RunMode runCat, Scheduler &scheduler);
-    int RunThreadsSTLIMPL(RunMode runCat, Scheduler &scheduler);
-    int RunThreadsPPLIMPL(RunMode runCat, Scheduler &scheduler);
-
-    typedef int (System::*RunPtr)(RunMode, Scheduler &);
-    static constexpr std::array<RunPtr, 10> RunPtrList = {
-      &System::RunThreadsBasic,
-      &System::RunThreadsWinAPI,
-      &System::RunThreadsOpenMP,
-      &System::RunThreadsGCD,
-      &System::RunThreadsBoost,
-      &System::RunThreadsSTL,
-      &System::RunThreadsTBB,
-      &System::RunThreadsSTLIMPL,
-      &System::RunThreadsPPLIMPL,
-      &System::RunThreadsSTLAsync
-    };
 
     void WorkerSTLAsync(fptrType, Scheduler &);
 
@@ -105,7 +78,6 @@ class System
     string GetCompiler(int& comp) const;
     string GetCores(int& comp) const;
     string GetConstructor(int& cons) const;
-    string GetThreading(int& thr) const;
     string GetThreadSizes(char * c) const;
 
 
@@ -122,15 +94,11 @@ class System
 
     bool IsSingleThreaded() const;
 
-    bool IsIMPL() const;
-
     bool ThreadOK(const int thrId) const;
 
     void GetHardware(
       int& ncores,
       unsigned long long& kilobytesFree) const;
-
-    int PreferThreading(const unsigned code);
 
     int RunThreads(
         const RunMode r,
