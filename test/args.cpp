@@ -11,11 +11,11 @@
 // These functions parse the command line for options.
 
 
+#include <array>
 #include <iostream>
 #include <iomanip>
 #include <iterator>
 #include <fstream>
-#include <vector>
 #include <algorithm>
 #include <stdlib.h>
 #include <string.h>
