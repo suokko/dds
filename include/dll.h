@@ -361,7 +361,7 @@ struct DDSInfo
   int numCores;
 
   // Deprecated
-#if __cplusplus
+#if __cplusplus >= 201402L
   [[deprecated]]
 #endif
     int threading;
