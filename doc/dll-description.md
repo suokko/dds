@@ -24,7 +24,7 @@ To obtain better utilization of available threads, the double dummy (DD) tables 
 
 Solving hands can be done much more quickly using one of the multi-thread alternatives for calling SolveBoard. Then a number of hands are grouped for a single call to one of the functions `SolveAllBoards`, `SolveAllBoardsBin`, `SolveAllChunksBin` and `SolveAllChunksPBN`.  The hands are then solved in parallel using the available threads.
 
-The number of threads is automatically configured by DDS on Windows, taking into account the number of processor cores and available memory.  The number of threads can be influenced using by calling `SetMaxThreads`. This function should probably always be called on Linux/Mac, with a zero argument for auto-configuration.
+The number of threads is automatically configured by DDS on Windows, taking into account the number of processor cores and available memory.  The number of threads can be influenced using by calling `SetMaxThreads`.
 
 Calling `FreeMemory` causes DDS to give up its dynamically allocated memory.
 
@@ -35,15 +35,15 @@ The PAR calculation functions find the optimal contract(s) assuming open cards a
 Two alternatives are given:
 
 1. The PAR scores / contracts are calculated separately for each side. In almost all cases the results will be identical for both sides, but in rare cases the result is dependent on which side that &#8220;starts the bidding&#8221;, i.e. that first finds the bid that is most beneficial for the own side. One example is when both sides can make 1 NT.
-2. The dealer hand is assumed to &#8220;start the bidding&#8221;. 
+2. The dealer hand is assumed to &#8220;start the bidding&#8221;.
 
 The presentation of the par score and contracts are given in alternative formats.
 
 The functions `Par`, `SidesPar` and `DealerPar` do the par calculation; their call must be preceded by a function call calculating the double dummy table values.
 
-The functions `SidesParBin` and `DealerParBin` provide binary output of the par results, making it easy to tailor-make the output text format. Two such functions, `ConvertToSidesTextFormat` and `ConvertToDealerTextFormat`, are included as examples. 
+The functions `SidesParBin` and `DealerParBin` provide binary output of the par results, making it easy to tailor-make the output text format. Two such functions, `ConvertToSidesTextFormat` and `ConvertToDealerTextFormat`, are included as examples.
 
-It is possible as an option to perform par calculation in `CalcAllTables` and `CalcAllTablesPBN`. 
+It is possible as an option to perform par calculation in `CalcAllTables` and `CalcAllTablesPBN`.
 
 The par calculation is executed using a single thread. But the calculation is very fast and its duration is negligible compared to the double dummy calculation duration.
 
@@ -335,7 +335,7 @@ of the dealer.</td>
 </tr>
 <tr><td colspan="4">&nbsp;</td></tr>
 <tr>
-<td><code><a href="#SetMaxThreads">SetMaxThreads</a></code></td><td><code>int&nbsp;userThreads</code></td><td>PBN</td><td>Used at initial start and can also be called with a request for allocating memory for a specified number of threads. Is apparently¸mandatory on Linux and Mac (optional on Windows)</td>
+<td><code><a href="#SetMaxThreads">SetMaxThreads</a></code></td><td><code>int&nbsp;userThreads</code></td><td>PBN</td><td>Used at initial start and can also be called with a request for allocating memory for a specified number of threads. It must not be called simultanously with any libdds functions.</td>
 </tr>
 <tr><td colspan="4">&nbsp;</td></tr>
 <tr>
@@ -885,7 +885,7 @@ For mode = 2 it is the responsibility of the programmer using the DLL to ensure 
 </tbody>
 </table>
 
-CalcDDtablePBN is just like CalcDDtable, except for the input format. 
+CalcDDtablePBN is just like CalcDDtable, except for the input format.
 CalcDDtable solves a single deal &#8220; tableDeal &#8221; and returns the double-dummy values for the initial 52 cards for all the 20 combinations of denomination and declarer in &#8220;\*tablep&#8221; , which must be declared before calling CalcDDtable.
 
 <table>
@@ -1061,7 +1061,7 @@ SolveAllBoards now detects repetitions automatically within a batch, whether or 
 
 The functions Par, DealerPar, SidesPar, DealerParBin and SidesParBin calculate the par score and par contracts of a given double-dummy solution matrix `*tablep` which would often be the solution of a call to [CalcDDtable](#CalcDDtable). Since the input is a table, there is no PBN and non-PBN version of these functions.
 
-Before the functions can be called, a structure of the type &#8220;parResults&#8221; , `parResultsDealer` or `parResultsMaster` must already have been defined. 
+Before the functions can be called, a structure of the type &#8220;parResults&#8221; , `parResultsDealer` or `parResultsMaster` must already have been defined.
 
 The `vulnerable` parameter is given using [Vulnerable](#Vulnerable) encoding.
 
@@ -1092,12 +1092,12 @@ DealerParBin and SidesParBin are similar to DealerPar and SidesPar, respectively
 
 After DealerParBin or SidesParBin is called, the results in parResultsMaster are used when calling ConvertToDealerTextFormat resp. ConvertToSidesTextFormat.
 
-Output example from ConvertToDealerTextFormat:  
+Output example from ConvertToDealerTextFormat:
 &#8220;Par 110: NS 2S NS 2H&#8221;
 
-Output examples from ConvertToSidesTextFormat:  
-&#8220;NS Par 130: NS 2D+2 NS 2C+2&#8221; when it does not matter who starts the bidding.  
-&#8221;NS Par -120: W 2NT  
+Output examples from ConvertToSidesTextFormat:
+&#8220;NS Par 130: NS 2D+2 NS 2C+2&#8221; when it does not matter who starts the bidding.
+&#8221;NS Par -120: W 2NT
 EW Par 120: W 1NT+1&#8221; when it matters who starts the bidding.
 
 <table>
@@ -1212,9 +1212,7 @@ DDS then checks whether a number of threads equal to the number of cores will fi
 
 The user can suggest to DDS a number of threads by calling SetMaxThreads. DDS will never create more threads than requested, but it may create fewer if there is not enough memory, calculated as above. Calling SetMaxThreads is optional, not mandatory. DDS will always select a suitable number of threads on its own.
 
-It may be possible, especially on non-Windows systems, to call SetMaxThreads() actively, even though the user does not want to influence the default values. In this case, use a 0 argument.
-
-SetMaxThreads can be called multiple times even within the same session. So it is theoretically possible to change the number of threads dynamically. 
+SetMaxThreads can be called multiple times even within the same session. So it is theoretically possible to change the number of threads dynamically. SetMaxThreads must not be called simultaneously with any libdds functions.
 
 It is possible to ask DDS to give up its dynamically allocated memory by calling FreeMemory. This could be useful for instance if there is a long pause where DDS is not used within a session. DDS will free its memory when the DLL detaches from the user program, so there is no need for the user to call this function before detaching.
 <a name="ReturnCodes"></a>
