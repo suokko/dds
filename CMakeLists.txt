@@ -140,8 +140,6 @@ write_basic_package_version_file(
 
 # Install all files required by find_package(DDS)
 install(FILES
-    cmake/FindGCD.cmake
-    cmake/FindPPL.cmake
     "${CMAKE_CURRENT_BINARY_DIR}/DDSConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/DDSConfigVersion.cmake"
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/DDS"
