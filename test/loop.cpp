@@ -19,7 +19,7 @@
 
 #define BATCHTIMES
 
-extern TestTimer timer;
+extern thread_local TestTimer timer;
 
 
 void loop_solve(std::ostream &out,

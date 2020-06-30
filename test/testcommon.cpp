@@ -50,7 +50,7 @@ const std::array<std::string, 5> DDS_SYSTEM_COMPILER =
 
 
 extern OptionsType options;
-TestTimer timer;
+thread_local TestTimer timer;
 
 
 void main_identify(std::ostream& ostream);
