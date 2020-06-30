@@ -80,7 +80,6 @@ int realMain(const std::string& fname, Solver solver)
   else if (solver == DTEST_SOLVER_DEALERPAR)
     stepsize = 1;
 
-  set_constants();
   main_identify(out);
 
   int number;

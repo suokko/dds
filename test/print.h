@@ -16,8 +16,6 @@
 #include "dll.h"
 
 
-void set_constants();
-
 void print_PBN(std::ostream &out, const dealPBN& dl);
 
 void print_FUT(std::ostream &out, const futureTricks& fut);
