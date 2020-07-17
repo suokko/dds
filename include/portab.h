@@ -11,7 +11,7 @@
 #define DDS_PORTAB_H
 
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined (__CYGWIN__)
   #if defined(__MINGW32__) && !defined(WINVER)
     #define WINVER 0x500
   #endif
@@ -19,43 +19,16 @@
   #include <windows.h>
   #include <process.h>
 
-  #define USES_DLLMAIN
-  /* DLL uses DllMain() for initialization */
-
   #if defined (_MSC_VER)
     #include <intrin.h>
   #endif
 
-#elif defined (__CYGWIN__)
-  #include <windows.h>
-  #include <process.h>
-
-  #define USES_DLLMAIN
-
-#elif defined (__linux)
+#elif defined (__linux) || defined (__APPLE__)
   #include <unistd.h>
-  #define USES_CONSTRUCTOR
   /* DLL uses a constructor function for initialization */
 
   typedef long long __int64;
 
-#elif defined (__APPLE__)
-  #include <unistd.h>
-
-  #define USES_CONSTRUCTOR
-
-  typedef long long __int64;
-
-#endif
-
-#if (! defined DDS_THREADS_WIN32) && \
-    (! defined DDS_THREADS_OPENMP) && \
-    (! defined DDS_THREADS_NONE)
-  #define DDS_THREADS_NONE
-#endif
-
-#ifdef _OPENMP
-  #include <omp.h>
 #endif
 
 #if __cplusplus < 201703L
@@ -65,7 +38,6 @@ constexpr size_t size(const T (&)[N])
   return N;
 }
 #endif
-
 
 
 // http://stackoverflow.com/a/4030983/211160

@@ -11,7 +11,6 @@ set(DDS_SRC
     ABstats.h
     CalcTables.cpp
     CalcTables.h
-    dds.cpp
     dds.h
     DealerPar.cpp
     debug.h

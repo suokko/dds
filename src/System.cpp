@@ -297,13 +297,7 @@ string System::GetCompiler(int& comp) const
 
 string System::GetConstructor(int& cons) const
 {
-#if defined(USES_DLLMAIN)
-  cons = 1;
-#elif defined(USES_CONSTRUCTOR)
-  cons = 2;
-#else
   cons = 0;
-#endif
 
   return DDS_SYSTEM_CONSTRUCTOR[static_cast<unsigned>(cons)];
 }

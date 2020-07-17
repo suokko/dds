@@ -21,6 +21,21 @@
 System sysdep;
 Memory memory;
 
+/**
+ * Initialize the library so user doesn't have to call SetResources or
+ * SetMaxThreads.
+ */
+struct DDSInitialize {
+  DDSInitialize();
+};
+
+static DDSInitialize init_obj{};
+
+DDSInitialize::DDSInitialize()
+{
+  SetMaxThreads(0);
+}
+
 void InitConstants();
 
 void InitDebugFiles();
